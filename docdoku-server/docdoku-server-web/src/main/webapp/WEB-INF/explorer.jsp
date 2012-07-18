@@ -35,7 +35,7 @@
 				baseUrl: "<%=request.getContextPath()%>/js",
 				paths: {
 					"require": "lib/require/1.0.8/require.min",
-					"text": "lib/require/1.0.8/text.min",
+					"text": "lib/require/1.0.8/text.min"
 				},
 				locale: "<%=request.getLocale()%>"
 			});

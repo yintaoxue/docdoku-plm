@@ -19,7 +19,7 @@ define([
 				+ "/"
 				+ doc.id[doc.id.length - 1]
 				+ "/" + this.id;
-		},
+		}
 	});
 	return DocumentIteration;
 });

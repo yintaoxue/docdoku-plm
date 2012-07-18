@@ -24,7 +24,17 @@ define([
 				xhr.addEventListener("error", this.error, false);
 				xhr.addEventListener("abort", this.abort, false);
 				xhr.open("POST", this.model.fileUploadUrl() + "/" + filename);
-				var fd = new FormData(form);
+
+                var files = $('input[type=file]');
+                var fd = new FormData();
+                fd.append("testKey", "testValue");
+
+                for (var i = 0 ; i <files.length ; i++){
+                    var fileId = files[i].id;
+                    var html5File = document.getElementById(fileId);
+                    fd.append("upload", html5File.files[0]);
+                }
+
 				xhr.send(fd);
 			} else {
 				// Nothing to upload
@@ -45,7 +55,7 @@ define([
 		},
 		abort: function (evt) {
 			this.trigger("finished", evt, this);
-		},
+		}
 	});
 	return FileUploadView;
 });

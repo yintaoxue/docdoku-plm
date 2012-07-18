@@ -32,17 +32,11 @@ import com.docdoku.core.security.ACLUserGroupEntry;
 import com.docdoku.core.security.UserGroupMapping;
 import com.docdoku.core.services.ICommandLocal;
 import com.docdoku.server.http.FileConverter;
-import com.docdoku.server.rest.dto.ACLDTO;
 import com.docdoku.server.rest.dto.*;
 import com.docdoku.server.rest.exceptions.ApplicationException;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
+import org.dozer.DozerBeanMapperSingletonWrapper;
+import org.dozer.Mapper;
+
 import javax.activation.FileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -59,8 +53,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
-import org.dozer.DozerBeanMapperSingletonWrapper;
-import org.dozer.Mapper;
+import java.io.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Stateless
 @Path("workspaces/{workspaceId}/documents")
@@ -76,12 +72,18 @@ public class DocumentResource {
     private UserTransaction utx;
     @Context
     private UriInfo context;
-    @Resource
+
+    
     private ServletContext servletContext;
     
     private Mapper mapper;
 
     public DocumentResource() {
+    }
+
+    @Context
+    public void setServletContext(ServletContext servletContext){
+        this.servletContext = servletContext;
     }
 
     @PostConstruct
