@@ -52,6 +52,7 @@ define([
 			this.filesView.render();//calling Mustache
 
             //kind of reload ?
+            //TODO : this fetch won't work
 			this.filesView.bind("saved", this.model.fetch);
 		},
 		cancelAction: function () {

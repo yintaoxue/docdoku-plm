@@ -1,8 +1,3 @@
-//tricks for referencement in IDE
-APP_CONFIG = APP_CONFIG;
-APP_CONFIG.workspaceId = APP_CONFIG.workspaceId;
-APP_CONFIG.login = APP_CONFIG.login;
-
 define([
 	"router",
 	"models/workspace",
