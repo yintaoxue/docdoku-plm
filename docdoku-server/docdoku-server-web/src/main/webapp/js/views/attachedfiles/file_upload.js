@@ -1,7 +1,9 @@
 define([
+    "i18n",
 	"views/base",
-	"text!templates/file_upload.html"
+	"text!templates/attachedfiles/file_upload.html"
 ], function (
+    i18n,
 	BaseView,
 	template
 ) {
@@ -11,9 +13,20 @@ define([
 		className: "list-item",
 		initialize: function () {
 			BaseView.prototype.initialize.apply(this, arguments);
+
 			this.events["click .upload"] = this.upload;
 			this.events["click .remove"] = this.destroy;
 		},
+        /*
+        render : function(){
+            var data = {};
+            data.i18n = i18n;
+            data.files = [];
+            //we build a map with {"fullName":"shortName"}
+            //_.each
+
+        },*/
+
 		upload: function () {
 			var form = document.getElementById("form-" + this.cid);
 			if (form.upload.value) {

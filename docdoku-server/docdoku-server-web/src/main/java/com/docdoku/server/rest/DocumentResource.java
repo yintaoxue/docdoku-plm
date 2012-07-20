@@ -590,14 +590,14 @@ public class DocumentResource {
 
     @DELETE
     @Consumes("application/json;charset=UTF-8")
-    @Path("{docKey}/iterations/{docIteration}/files/{fileName}")
-    public Response removeAttachedFile(@PathParam("workspaceId") String workspaceId, @PathParam("docKey") String docKey, @PathParam("docIteration") int docIteration, @PathParam("fileName") String fileName) {
+    @Path("{docKey}/iterations/{docIteration}/files/{fileShortName}")
+    public Response removeAttachedFile(@PathParam("workspaceId") String workspaceId, @PathParam("docKey") String docKey, @PathParam("docIteration") int docIteration, @PathParam("fileShortName") String fileShortName) {
         try {
             int lastDash = docKey.lastIndexOf('-');
             String id = docKey.substring(0, lastDash);
             String version = docKey.substring(lastDash + 1, docKey.length());
 
-            String fileFullName = workspaceId + "/documents/" + id + "/" + version + "/" + docIteration + "/" + fileName;
+            String fileFullName = workspaceId + "/documents/" + id + "/" + version + "/" + docIteration + "/" + fileShortName;
             System.out.println("fileFullName : " + fileFullName);
 
             commandService.removeFileFromDocument(fileFullName);
