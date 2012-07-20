@@ -14,6 +14,7 @@ define([
 		initialize: function () {
 			BaseView.prototype.initialize.apply(this, arguments);
 
+
 			this.events["click .upload"] = this.upload;
 			this.events["click .remove"] = this.destroy;
 		},
@@ -30,13 +31,13 @@ define([
 		upload: function () {
 			var form = document.getElementById("form-" + this.cid);
 			if (form.upload.value) {
-				var filename = form.upload.value.split(/(\\|\/)/g).pop();
+				var shortName = form.upload.value.split(/(\\|\/)/g).pop();
 				var xhr = new XMLHttpRequest();
 				xhr.upload.addEventListener("progress", this.progress, false);
 				xhr.addEventListener("load", this.load, false);
 				xhr.addEventListener("error", this.error, false);
 				xhr.addEventListener("abort", this.abort, false);
-				xhr.open("POST", this.model.fileUploadUrl() + "/" + filename);
+				xhr.open("POST", this.model.getUploadUrl(shortName));
 
                 var files = $('input[type=file]');
                 var fd = new FormData();

@@ -17,7 +17,6 @@ define([
             kumo.assertNotEmpty(this.model, "no model defined in IterationEditFilesView");
             kumo.assert (this.model.className=="DocumentIteration", "model should be a DocumentIteration");
 
-
             //list of further uploaded files view
 			this.uploadViews = [];
 		},
@@ -46,8 +45,6 @@ define([
             //current model is a DocumentIteration
             var files = this.model.get("attachedFiles");
 
-
-
             function build (file){
                 data.files.push(
                     {
@@ -67,16 +64,41 @@ define([
 
         },
 		deleteFiles: function () {
-            var iterUrl = this.getDocumentIteration().getUrl();
+            var documentIteration =this.getDocumentIteration();
+            var iterUrl = documentIteration.getUrl();
 
             //TODO we should declare events into view AttachedFileView and then call the AttachedFileModel
-			this.$el.find(".file-delete:checked").each(function () {
-				var shortName = $(this).attr("value");
+            var fileElements = this.$el.find(".file-delete:checked");
+			$.each(fileElements, function (index, elt) {
+                var elt = $(this);
+				var shortName = elt.attr("value");
                 var url = iterUrl+"/files/"+shortName;
+
 				$.ajax(url, {
-					type: "DELETE"
+					type: "DELETE",
+                    success : function(){
+
+                        //remove from the dom
+                        var liParent =elt.parents("li");
+                        kumo.assert(liParent.hasClass("list-item"), "element parent is not a LI tag");
+                        liParent.remove();
+
+                        //remove from the collection
+                        var fileCid = elt.id;
+                        var existingFilesCollection = documentIteration.get("attachedFiles");
+                        var fileModel = existingFilesCollection.getByCid(fileCid);
+                        existingFilesCollection.remove(fileModel);
+
+
+                    },
+                    failure : function(resp){
+                        console.error("error deleting "+shortName+" : "+resp);
+                    }
 				});
 			});
+
+            //Request are sent to the server. Now we remove it from the DOM
+            this.$el.find(".file-delete:checked").hide();
 		},
 		uploadFiles: function () {
 			this.finishedUploads = [];

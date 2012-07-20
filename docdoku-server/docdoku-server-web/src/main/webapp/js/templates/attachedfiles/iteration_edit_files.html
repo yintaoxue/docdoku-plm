@@ -1,9 +1,9 @@
 <!-- Current uploaded files -->
 <ul class="files">
 {{#files}}
-	<li class="list-item">
+	<li class="list-item" id="{{cid}}">
 		<label class="">
-			<input id="{{cid}}{{fullName}}" class="file-delete" type="checkbox" value="{{shortName}}" />
+			<input id="{{cid}}-{{fullName}}" class="file-delete" type="checkbox" value="{{shortName}}" />
 			<a class="remove">×</a>
 		</label>
 		<a target="blank" href="/files/{{fullName}}">{{shortName}}</a>

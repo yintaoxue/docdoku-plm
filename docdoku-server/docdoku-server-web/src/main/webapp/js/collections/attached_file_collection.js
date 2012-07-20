@@ -4,10 +4,8 @@ define([
     AttachedFileModel
     ) {
     var AttachedFileCollection = Backbone.Collection.extend({
-        model: AttachedFileModel, // model is a Model
-        url: function () {
+        model: AttachedFileModel
 
-        }
     });
     AttachedFileCollection.className="AttachedFileCollection";
     return AttachedFileCollection;
