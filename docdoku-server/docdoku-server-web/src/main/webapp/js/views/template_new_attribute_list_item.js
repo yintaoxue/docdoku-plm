@@ -1,5 +1,5 @@
 define([
-	"views/list_item",
+	"views/components/list_item",
 	"text!templates/template_new_attribute_list_item.html"
 ], function (
 	ListItemView,
@@ -28,9 +28,9 @@ define([
 		},
 		updateName: function () {
 			this.model.set({
-				name: this.$el.find("input.name:first").val(),
+				name: this.$el.find("input.name:first").val()
 			});
-		},
+		}
 	});
 	return TemplateNewAttributeListItemView;
 });

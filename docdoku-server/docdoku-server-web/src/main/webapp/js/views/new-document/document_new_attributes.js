@@ -1,6 +1,6 @@
 define([
 	"views/base",
-	"views/document_new_attribute_list",
+	"views/new-document/document_new_attribute_list",
 	"text!templates/document_new_attributes.html"
 ], function (
 	BaseView,

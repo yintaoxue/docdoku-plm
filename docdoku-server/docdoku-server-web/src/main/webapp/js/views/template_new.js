@@ -1,5 +1,5 @@
 define([
-	"views/modal",
+	"views/components/modal",
 	"views/template_new_attributes",
 	"text!templates/template_new.html"
 ], function (

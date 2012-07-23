@@ -1,6 +1,6 @@
 define([
 	"i18n",
-	"views/document_new_attribute_list_item",
+	"views/new-document/document_new_attribute_list_item",
 	"text!templates/partials/document_new_attribute_list_item.html",
 	"text!templates/document_new_attribute_list_item_date.html"
 ], function (

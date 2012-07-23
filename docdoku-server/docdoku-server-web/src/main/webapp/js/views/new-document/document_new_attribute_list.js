@@ -1,10 +1,10 @@
 define([
-	"views/list",
-	"views/document_new_attribute_list_item_boolean",
-	"views/document_new_attribute_list_item_date",
-	"views/document_new_attribute_list_item_number",
-	"views/document_new_attribute_list_item_text",
-	"views/document_new_attribute_list_item_url"
+	"views/components/list",
+	"views/new-document/document_new_attribute_list_item_boolean",
+	"views/new-document/document_new_attribute_list_item_date",
+	"views/new-document/document_new_attribute_list_item_number",
+	"views/new-document/document_new_attribute_list_item_text",
+	"views/new-document/document_new_attribute_list_item_url"
 ], function (
 	ListView,
 	DocumentNewAttributeListItemBooleanView,
@@ -19,7 +19,7 @@ define([
 				"DATE":		DocumentNewAttributeListItemDateView,
 				"NUMBER":	DocumentNewAttributeListItemNumberView,
 				"TEXT":		DocumentNewAttributeListItemTextView,
-				"URL":		DocumentNewAttributeListItemUrlView,
+				"URL":		DocumentNewAttributeListItemUrlView
 		},
 		itemViewFactory: function (model) {
 			var type = model.get("type");
@@ -30,7 +30,7 @@ define([
 		},
 		collectionAdd: function (model) {
 			this.createItemView(model);
-		},
+		}
 	});
 	return DocumentNewAttributeListView;
 });

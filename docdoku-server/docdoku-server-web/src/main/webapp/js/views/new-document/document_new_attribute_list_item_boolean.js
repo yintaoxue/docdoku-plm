@@ -1,20 +1,24 @@
 define([
-	"views/document_new_attribute_list_item",
+	"views/new-document/document_new_attribute_list_item",
 	"text!templates/partials/document_new_attribute_list_item.html",
-	"text!templates/document_new_attribute_list_item_number.html"
+	"text!templates/document_new_attribute_list_item_boolean.html"
 ], function (
 	DocumentNewAttributeListItemView,
 	document_new_attribute_list_item,
 	template
 ) {
-	var DocumentNewAttributeListItemNumberView = DocumentNewAttributeListItemView.extend({
+	var DocumentNewAttributeListItemBooleanView = DocumentNewAttributeListItemView.extend({
 		template: Mustache.compile(template),
 		partials: {
 			document_new_attribute_list_item: document_new_attribute_list_item
 		},
 		initialize: function () {
 			DocumentNewAttributeListItemView.prototype.initialize.apply(this, arguments);
+			this.events["change .value"] = "updateValue";
 		},
+		getValue: function (el) {
+			return el.attr("checked") ? true : false;
+		}
 	});
-	return DocumentNewAttributeListItemNumberView;
+	return DocumentNewAttributeListItemBooleanView;
 });

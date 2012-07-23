@@ -1,5 +1,5 @@
 define([
-	"views/list",
+	"views/components/list",
 	"views/template_new_attribute_list_item"
 ], function (
 	ListView,
