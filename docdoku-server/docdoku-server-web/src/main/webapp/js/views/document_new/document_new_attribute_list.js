@@ -1,10 +1,10 @@
 define([
 	"views/components/list",
-	"views/new-document/document_new_attribute_list_item_boolean",
-	"views/new-document/document_new_attribute_list_item_date",
-	"views/new-document/document_new_attribute_list_item_number",
-	"views/new-document/document_new_attribute_list_item_text",
-	"views/new-document/document_new_attribute_list_item_url"
+	"views/document_new/document_new_attribute_list_item_boolean",
+	"views/document_new/document_new_attribute_list_item_date",
+	"views/document_new/document_new_attribute_list_item_number",
+	"views/document_new/document_new_attribute_list_item_text",
+	"views/document_new/document_new_attribute_list_item_url"
 ], function (
 	ListView,
 	DocumentNewAttributeListItemBooleanView,

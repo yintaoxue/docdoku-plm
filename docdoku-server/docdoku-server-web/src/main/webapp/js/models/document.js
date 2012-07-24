@@ -83,6 +83,16 @@ define([
           return this.url();
         },
 
+        getLastIteration : function(){
+           return this.get("lastIteration");
+        },
+
+        getIterations : function(){
+          return this.get("documentIterations");
+        },
+
+
+
         /**
          * @deprecated ; use this.getUrl()
          * TODO : track and remove calls to this function

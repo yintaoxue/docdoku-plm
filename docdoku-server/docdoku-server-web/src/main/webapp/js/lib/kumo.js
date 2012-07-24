@@ -211,5 +211,3 @@ if (!window.console) {
         }
     }
 }
-
-

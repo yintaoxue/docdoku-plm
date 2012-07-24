@@ -1,9 +1,9 @@
 define([
 	"views/components/modal",
-	"views/new-document/document_new_attributes",
-	"views/new-document/document_new_template_list",
-	"views/new-document/document_new_workflow_list",
-	"text!templates/document_new.html"
+	"views/document_new/document_new_attributes",
+	"views/document_new/document_new_template_list",
+	"views/document_new/document_new_workflow_list",
+	"text!templates/document_new/document_new.html"
 ], function (
 	ModalView,
 	DocumentNewAttributesView,

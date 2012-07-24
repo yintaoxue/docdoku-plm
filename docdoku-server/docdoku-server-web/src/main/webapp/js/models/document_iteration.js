@@ -41,6 +41,11 @@ define([
             console.log ("Warning : document is Null on this iteration object "+this.cid);
             return this.get("document");
         },
+
+        getReference : function(){
+            return this.getDocKey()+"-"+this.getIteration();
+        },
+
         getIteration : function(){
             return this.get("iteration");
         },
