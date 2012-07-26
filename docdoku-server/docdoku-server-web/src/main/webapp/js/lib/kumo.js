@@ -81,7 +81,11 @@ var kumo = {
     xor:function (x, y) {
         return this.e(x) ? !this.e(y) : this.e(y)
     },
-    //returns true if any value in the array is empty
+
+    /**
+     * returns true if any value in the array is empty
+     * It will return at the first empty item found
+     */
     any:function (array) {
         for (var i = 0; i < array.length; i++) {
             if (this.e(array[i])) {
@@ -91,6 +95,13 @@ var kumo = {
         return false;
     },
     enableAssert:true,
+    devMode : true,
+
+    debug : function(log){
+        if (this.devMode){
+            console.log (log);
+        }
+    },
 
     replaceAll:function (string, that, byThat) {
         var regex = new RegExp(that, 'g');
@@ -195,6 +206,12 @@ var kumo = {
         }
 
         return _.isUndefined(value);
+    },
+
+    extractFullHtml : function(jqueryElement){
+
+        var html = $('<div>').append($(jqueryElement).clone()).remove().html();
+        return html;
     }
 
 };

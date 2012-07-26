@@ -1,6 +1,7 @@
 define(function () {
 	var i18n = {
 		"APPEND":						"Ajouter",
+        "ATTACHED_FILES":               "Fichiers Attachés",
 		"ATTRIBUTES":					"Attributs",
 		"AUTHOR":						"Auteur",
 		"BOOLEAN":						"Booléen",

@@ -8,9 +8,10 @@
         <div class="tabs">
             <ul class="nav nav-tabs">
                 <li class="active"><a href="#tab-main-{{view.cid}}" data-toggle="tab">{{_.GENERAL}}</a></li>
-                <li><a href="#tab-attributes-{{view.cid}}" data-toggle="tab">{{_.ATTRIBUTES}}</a></li>
+                <li><a href="#tab-iteration-attributes" data-toggle="tab">{{_.ATTRIBUTES}}</a></li>
+                <li><a href="#tab-iteration-files" data-toggle="tab">{{_.ATTACHED_FILES}}</a></li>
             </ul>
-            <form id="form-{{view.cid}}" class="tab-content form-horizontal">
+            <div id="form-{{view.cid}}" class="tab-content form-horizontal">
                 <div id="tab-main-{{view.cid}}" class="tab-pane active">
                     <div id="templates-{{view.cid}}"></div>
                     <div id="workflows-{{view.cid}}"></div>
@@ -35,10 +36,13 @@
                         </div>
                     </div>
                 </div>
-                <div id="tab-attributes-{{view.cid}}" class="tab-pane attributes attribute-list-view">
-                    {{{attributes}}}
+                <div id="tab-iteration-attributes" class="tab-pane attributes">
+                    <div id="iteration-attributes"></div>
                 </div>
-            </form>
+                <div id="tab-iteration-files" class="tab-pane files">
+                    <div id="iteration-files"></div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="modal-footer">

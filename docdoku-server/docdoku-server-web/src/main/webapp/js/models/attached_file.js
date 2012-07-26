@@ -9,10 +9,7 @@ define([
         initialize: function () {
             this.className = "AttachedFile";
             //expected : documentIteration
-            kumo.assert(_.size(this.attributes)== 1,
-                    "attributes : "+JSON.stringify(this.attributes)+" ; "+_.size(this.attributes)+" ; Size of this.attributes should be 1, or recheck the name assignation procedure");
-            this.set("fullName", _.keys(this.attributes)[0]);
-            this.set("shortName", _.last(this.getFullName().split("/")));
+            kumo.assertNotEmpty(this.get("created"), "created attribute not set at AttachedFile creation");
 
             _.bindAll(this);
         },
@@ -30,16 +27,23 @@ define([
         },
 
         getUrl : function(){
-            var doc = this.documentIteration.collection.document;
-            var docKey = doc.id+"-"+doc.version;
-            //documentIterationUrl should be :
-            var toto = "/workspaces/"+APP_CONFIG.workspaceId+"/documents/"+docKey+"/iteration/"+this.documentIteration.iteration;
-            return this.documentIteration.url+"/files/"+this.name;
+            return this.getDocumentIteration().getUploadUrl(this.getShortName());
         },
 
         fileUploadUrl: function () {
             var baseUrl = this.getDocumentIteration().getUrl();
             return baseUrl +"/files/"+this.getShortName();
+        },
+
+        toString : function(){
+            return this.getShortName();
+        },
+
+        isCreated : function(){
+
+            var result = kumo.isNotEmpty(this.getFullName());
+            kumo.debug (this.getShortName()+" created ? "+result);
+            return result;
         }
     });
     return AttachedFile;

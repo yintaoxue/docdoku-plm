@@ -11,6 +11,9 @@ define([
 ) {
 	var IterationEditFilesView = BaseView.extend({
 		template: Mustache.compile(template),
+
+        className : "IterationEditFilesView",
+
 		initialize: function () {
 			BaseView.prototype.initialize.apply(this, arguments);
 			this.events["click .add"] = this.addUpload;
@@ -20,6 +23,8 @@ define([
 
             //list of further uploaded files view
 			this.uploadViews = [];
+
+            kumo.debug("cid : "+this.cid + " ; className :"+this.className);
 		},
 
         getDocumentIteration : function(){

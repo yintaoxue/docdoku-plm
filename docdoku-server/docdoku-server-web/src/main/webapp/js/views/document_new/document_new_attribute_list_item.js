@@ -30,7 +30,7 @@ define([
 		},
 		updateName: function () {
 			this.model.set({
-				name: this.$el.find("input.name:first").val(),
+				name: this.$el.find("input.name:first").val()
 			});
 		},
 		updateValue: function () {

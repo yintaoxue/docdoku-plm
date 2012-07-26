@@ -59,7 +59,7 @@ define([
         getDocKey : function(){
             if (kumo.isEmpty(this.get("docKey"))){
                 //looks like being a problem just after the creation of a document
-                console.log("Creation of a document ; docKey not set, sending back the id");
+                console.error("Creation of a document ; docKey not set, sending back the id");
                 return this.id;
             }else{
                 return this.get("docKey");

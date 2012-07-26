@@ -1,10 +1,12 @@
 define([
 	"i18n",
 	"common/date",
+    "collections/attribute_collection",
     "collections/attached_file_collection"
 ], function (
 	i18n,
 	date,
+    AttributeCollection,
     AttachedFileCollection
 ) {
 	var DocumentIteration = Backbone.Model.extend({
@@ -14,12 +16,28 @@ define([
             this.className = "DocumentIteration";
 			_.bindAll(this);
 
-            var attachedFiles = new AttachedFileCollection(this.get("attachedFiles"));
+            var attributes = new AttributeCollection(this.get("instanceAttributes"));
+
+            var filesMapping = _.map(this.get("attachedFiles"), function(fullName){
+                return {
+                    "fullName":fullName,
+                    shortName : _.last(fullName.split("/")),
+                    created : true
+                }
+            });
+            var attachedFiles = new AttachedFileCollection(filesMapping);
+
+            //'attributes' is a special name for Backbone
+            this.set("instanceAttributes", attributes);
             this.set("attachedFiles",  attachedFiles);
+
             attachedFiles.forEach(function(file){
                file.set("documentIteration", self);
             });
 
+            attributes.forEach(function(attr){
+                attr.set("documentIteration", self);
+            });
 
             //For the moment, DocumentIteration is built BEFORE the document
             //kumo.assertNotEmpty(this.getDocument(), "no valid document assigned");
@@ -30,7 +48,16 @@ define([
 
 		},
         defaults :{
-            attachedFiles :[]
+            attachedFiles :[],
+            instanceAttributes : []
+        },
+
+        getAttachedFiles : function(){
+          return this.get("attachedFiles");
+        },
+
+        getAttributes : function(){
+            return this.get("instanceAttributes");
         },
 
         getWorkspace : function(){
@@ -38,7 +65,6 @@ define([
         },
 
         getDocument : function(){
-            console.log ("Warning : document is Null on this iteration object "+this.cid);
             return this.get("document");
         },
 
