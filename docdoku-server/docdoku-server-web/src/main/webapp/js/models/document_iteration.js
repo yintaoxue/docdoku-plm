@@ -78,10 +78,17 @@ define([
         getDocKey : function(){
             return  this.get("documentMasterId")+"-"+this.get("documentMasterVersion");
         },
-        getUrl : function(){
+
+        url : function(){
             kumo.assertNotAny([ this.get("workspaceId"), this.get("documentMasterId"), this.get("documentMasterVersion")]);
             var baseUrl ="/api/workspaces/" + this.get("workspaceId")+ "/documents/"+this.getDocKey();
             return baseUrl+"/iterations/"+this.getIteration();
+
+
+        },
+        //TODO : deprecated
+        getUrl : function(){
+            return this.url();
         },
         /**
          *

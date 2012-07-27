@@ -1,18 +1,18 @@
 define([
     "views/components/modal",
     "views/iteration/file_editor",
-    "views/document_new/document_new_attributes",
-    "views/document_new/document_new_template_list",
-    "views/document_new/document_new_workflow_list",
+   // "views/document_new/document_new_attributes",
+   // "views/document_new/document_new_template_list",
+   // "views/document_new/document_new_workflow_list",
     "views/components/editable_list_view",
     "text!templates/iteration/iteration_new.html",
     "i18n"
 ], function (
     ModalView,
     FileEditor,
-    DocumentNewAttributesView,
-    DocumentNewTemplateListView,
-    DocumentNewWorkflowListView,
+   // DocumentNewAttributesView,
+    //DocumentNewTemplateListView,
+    //DocumentNewWorkflowListView,
     EditableListView,
     template,
     i18n
@@ -21,6 +21,11 @@ define([
 
         template: Mustache.compile(template),
 
+        events : {
+            "click .btn-primary":"bindSaveButton",
+            "click .cancel":"bindCancelButton"
+        },
+
         initialize: function(){
 
             //the model is the MasterDocument
@@ -28,9 +33,7 @@ define([
             //we are fetching the last iteration
             this.iteration = this.model.getLastIteration();
 
-            var attributes = this.iteration.getAttributes(); // [{"a":"x"}, {"b":"y"}, {"c":"z"}];
-
-
+            var attributes = this.iteration.getAttributes();
            /* this.attributesView = new EditableListView({
                 model : attributes, // this will be set directly in view.model
                 editable : true, // we will have to look at view.options.editable
@@ -39,11 +42,7 @@ define([
                 valueName : "value"
             });*/
 
-            console.log("files length : "+this.iteration.getAttachedFiles().length);
             ModalView.prototype.initialize.apply(this, arguments);
-
-
-
 
         },
 
@@ -51,13 +50,8 @@ define([
         render : function(){
             this.deleteSubViews();
 
-
-
             //var attrView = this.attributesView.render();
             //var attrHtml = attrView.$el.clone().wrap('<p>').parent().html();
-
-          //  var filesView = this.filesView.render();
-           // var filesViewHtml = $('<div>').append(filesView.$el.clone()).remove().html();
 
             var data = {
                 iteration : this.iteration.toJSON(),
@@ -67,15 +61,14 @@ define([
                // files : filesViewHtml,
                 _ : i18n
             }
-
+            //Main window
             var html = this.template(data);
-
             this.$el.html(html);
 
+
+
+            //File Tab
             kumo.assertNotEmpty($("#iteration-files"), "no tab for files");
-
-
-
             this.fileEditor = new FileEditor({documentIteration:this.iteration})
             // adding components
             this.filesView = new  EditableListView({
@@ -87,20 +80,56 @@ define([
                 el : $("#iteration-files")
             }).render();
 
+
             this.cutomizeRendering();
 
             return this;
         },
 
+        primaryAction : function(){
+            //saving new files : nothing to do : it's already saved
+            //deleting unwanted files
+            var filesToDelete =this.filesView.selection;
+
+            //we need to reverse read because model.destroy() remove elements from collection
+            while (filesToDelete.length !=0){
+                var file = filesToDelete.pop();
+                file.destroy({
+                    error : function(){
+                        alert("file "+file+" could not be deleted");
+                    }
+                });
+            }
+            this.hide();
+
+        },
+
+        cancelAction : function(){
+
+            //deleting unwanted files that have been added by upload
+            var filesToDelete =this.filesView.newItems;
+
+            //we need to reverse read because model.destroy() remove elements from collection
+            while (filesToDelete.length !=0){
+                var file = filesToDelete.pop();
+                file.destroy({
+                    error : function(){
+                        alert("file "+file+" could not be deleted");
+                    }
+                });
+            }
+
+            ModalView.prototype.cancelAction.call(this);
+        },
+
+        /**
+         * Here are some jquery adjustments to render the list specially
+         */
         cutomizeRendering : function(){
 
             this.filesView.on("list:selected", function(selectedObject, line){
-
                     line.addClass("stroke");
-
                     line.find("a").addClass("stroke");
-
-
             });
 
             this.filesView.on("list:unselected", function(selectedObject, line){
@@ -108,10 +137,7 @@ define([
                 line.removeClass("stroke")
             });
 
-            this.fileEditor.render()
-
-
-
+            this.fileEditor.render();
         },
 
         /**

@@ -61,7 +61,6 @@ define([
 
         //DOM Events
         events:{
-            //"click .editable-list-adder":"addItemEditor",
             "click .editable-list-cancel-editor" : "bindCancelButton",
             "change input.item-selection" : "bindItemSelected"
         },
@@ -110,7 +109,6 @@ define([
                 kumo.debug(this.selection.length)
             }
 
-           //this.trigger ("list:selected", );
         },
 
         render:function () {
@@ -158,7 +156,7 @@ define([
         },
 
         fullTemplate:function () {
-            return this.listTemplate() + this.laterItemsTemplate() + this.editorPlaceTemplate() + this.controlBarTemplate();
+            return this.listTemplate() + /*this.laterItemsTemplate() +*/ this.editorPlaceTemplate() + this.controlBarTemplate();
         },
 
         listTemplate:function () {
@@ -233,7 +231,7 @@ define([
         onItemAdded : function(item){
 
             this.model.add(item);
-            //this.getNewItems().add(item);
+            this.getNewItems().add(item); // later list is disabled
             this.render();
             this.trigger("state:idle");
 

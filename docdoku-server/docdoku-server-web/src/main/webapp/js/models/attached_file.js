@@ -26,6 +26,11 @@ define([
             return this.get("shortName");
         },
 
+        url : function(){
+            return this.getDocumentIteration().url()+"/files/"+this.getShortName();
+        },
+
+        //TODO : change to getUploadUrl
         getUrl : function(){
             return this.getDocumentIteration().getUploadUrl(this.getShortName());
         },
@@ -44,6 +49,10 @@ define([
             var result = kumo.isNotEmpty(this.getFullName());
             kumo.debug (this.getShortName()+" created ? "+result);
             return result;
+        },
+
+        isNew : function(){
+            return false;
         }
     });
     return AttachedFile;

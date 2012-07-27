@@ -1,7 +1,7 @@
 define(function () {
 	var i18n = {
 		"APPEND":						"Ajouter",
-        "ATTACHED_FILES":               "Fichiers Attachés",
+        "ATTACHED_FILES":               "Fichiers",
 		"ATTRIBUTES":					"Attributs",
 		"AUTHOR":						"Auteur",
 		"BOOLEAN":						"Booléen",
@@ -46,6 +46,7 @@ define(function () {
 		"NEW_TEMPLATE":					"Nouveau Modèle",
 		"NEW_WORKFLOW":					"Nouveau Workflow",
 		"NUMBER":						"Nombre",
+        "OK":                           "OK",
 		"REFERENCE":					"Référence",
 		"REFERENCES":					"Références",
 		"RENAME":						"Renommer",
