@@ -13,8 +13,14 @@ define([
             kumo.debug("cid : "+this.cid+ " ; className :"+this.className);
 
             this.newItems = new AttachedFileCollection();
+
+            //events
+            _.bindAll(this);
+
+
         },
 
+        //DOM Events
         events : {
             //when form changes, we upload the file
             "change form input" : "onFileSelected"
@@ -44,21 +50,35 @@ define([
             newFile.set("documentIteration", this.options.documentIteration);
 
 
-            this.trigger("list:added", newFile);
+
 
             this.startUpload(form, newFile);
         },
 
         startUpload : function(form, newFile){
+
+            var self = this;
+            var widget =this.widget;
+            widget.trigger("state:working");
+
+
             //find correct $el
-            $("#item-"+newFile.cid).append("  <span id='progress-"+newFile.cid+"'> loading ....</span>");
-            var progressElement = $("#progress-"+newFile.cid);
+            //$("#item-"+newFile.cid).append("<span id='progress-"+newFile.cid+"'> loading ....</span>");
+            var progressElement = $("#progressVisualization");
+            kumo.assertNotEmpty(progressElement, "no progress element found");
             //xhr
             if (form.upload.value) {
-                var shortName = form.upload.value.split(/(\\|\/)/g).pop();
+
                 var xhr = new XMLHttpRequest();
                 xhr.upload.addEventListener("progress", uploadProgress, false);
                 xhr.addEventListener("load", loaded, false);
+
+                this.on("state:cancel", function(){
+                    console.log("canceling upload")
+                  //  xhr.removeEventListener("progress", uploadProgress, false);
+                    xhr.abort();
+                    finished();
+                });
                 //xhr.addEventListener("error", this.error, false);
                 //xhr.addEventListener("abort", this.abort, false);
                 var url = this.options.documentIteration.getUploadUrl(newFile.getShortName());
@@ -70,14 +90,14 @@ define([
                 fd.append("upload", file);
                 xhr.send(fd);
             } else {
-                // Nothing to upload
-                //this.trigger("finished", evt, this);
-                console.error("No data");
                 finished()
             }
 
+
+
             //on progress
             function uploadProgress(evt) {
+                console.log("progressing")
                 if (evt.lengthComputable) {
                     var percentComplete = Math.round(evt.loaded * 100 / evt.total);
                     progressElement.html(
@@ -89,40 +109,56 @@ define([
 
             function loaded (){
                 console.log("file "+newFile+" loaded");
-                progressElement.empty();
+                self.trigger("list:added", newFile);
                 finished();
             }
 
             function finished(){
                 console.log("file "+newFile+" finished");
+                progressElement.empty();
+                widget.trigger("status:idle");
+
             }
+
+
 
         },
 
         render : function(){
 
-            var html = Mustache.to_html(this.templateString(), this.getRenderData());
+            var data = {cid : this.cid};
+
+            var html = Mustache.to_html(this.templateString(), data);
             kumo.debug("rendering : \n"+html);
+            /*this.$el.html(html);
+            widgetAddButton.after(this.$el);
+            widgetAddButton.remove();
+            */
+            this.setElement(this.widget.getControlsElement());
             this.$el.html(html);
+
+           // this.widget.trigger("state:idle");
+
+            //this.$el.on("click")
+
             return this;
 
         },
 
-        getRenderData : function(){
-            return {
-                cid : this.cid
-            }
-        },
 
 
         templateString:function () {
-            var str = "<form id='form-{{cid}}'  enctype='multipart/form-data' class='list-item'>" +
-                "<div class='controls'>" +
-                "<a class='remove'>×</a>" +
-                "</div>" +
-                "<div class='controls'>" +
-                "<input id='input-{{cid}}' name='upload' type='file' class='input-xlarge value' />" +
-                "</div>" +
+            //change controls
+            //"<button class='editable-list-adder'>Add item</button>" +
+            //"<button id='editable-list-cancel-editor-"  + this.cid + "' class='editable-list-cancel-editor'>Cancel Add</button>" +
+
+
+
+            var str = "<div id='progressVisualization'></div>" +
+                "<form id='form-{{cid}}'  enctype='multipart/form-data' class='list-item'>" +
+                "<input id='input-{{cid}}' name='upload' type='file' class='input-xlarge value editable-list-adder'  />" +
+                "<button id='editable-list-cancel-editor-"  + this.cid + "' class='editable-list-cancel-editor hidden'>Cancel Add</button>" +
+
                 "</form>"
             return str;
         },
@@ -131,10 +167,18 @@ define([
             return this.$el.find("form");
         },
 
-        getListViewWidget : function(){
-            var listElt = this.$el.parent('div.editable-list');
-            kumo.assertNotEmpty(listElt, "can't find listView widget");
-            return listElt;
+        widget : null,
+
+        setWidget : function(widget){
+            this.widget = widget;
+            this.customizeWidget()
+        },
+
+
+        customizeWidget : function(){
+            kumo.assertNotEmpty(this.widget, "no Widget assigned");
+            this.widget.on("state:idle", this.render);
+
         }
 
     });

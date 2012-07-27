@@ -76,18 +76,42 @@ define([
 
 
 
+            this.fileEditor = new FileEditor({documentIteration:this.iteration})
             // adding components
             this.filesView = new  EditableListView({
                 model : this.iteration.getAttachedFiles(), // this will be set directly in view.model
                 editable : true, // we will have to look at view.options.editable
                 keyValue : false,
                 renderer : this.getFileRenderer(),
-                editor : new FileEditor({documentIteration:this.iteration}),
+                editor : this.fileEditor,
                 el : $("#iteration-files")
             }).render();
 
-            //$("div.attribute-list-view").append(attrHtml);
+            this.cutomizeRendering();
+
             return this;
+        },
+
+        cutomizeRendering : function(){
+
+            this.filesView.on("list:selected", function(selectedObject, line){
+
+                    line.addClass("stroke");
+
+                    line.find("a").addClass("stroke");
+
+
+            });
+
+            this.filesView.on("list:unselected", function(selectedObject, line){
+                line.find(".stroke").removeClass("stroke");
+                line.removeClass("stroke")
+            });
+
+            this.fileEditor.render()
+
+
+
         },
 
         /**
@@ -95,7 +119,8 @@ define([
          */
         getFileRenderer : function(){
 
-            var partial = "{{#created}}<a href='{{url}}'>{{shortName}}</a>{{/created}}" +
+            var partial = "{{#created}}" +
+                "<a href='{{url}}'>{{shortName}}</a>{{/created}}" +
                 "{{^created}}{{shortName}}{{/created}}";
 
             var mapper = function(file){

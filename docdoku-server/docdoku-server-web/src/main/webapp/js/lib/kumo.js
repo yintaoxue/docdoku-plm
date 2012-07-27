@@ -212,10 +212,32 @@ var kumo = {
 
         var html = $('<div>').append($(jqueryElement).clone()).remove().html();
         return html;
+    },
+    /**
+     * Try a function with optional arguments
+     * @param functionRef
+     */
+    tryFunction : function(object, functionRef){
+        kumo.debug("args : "+arguments);
+        var args =[];
+        for (var i=2 ; i < arguments.length ; i++){
+            args.push(arguments[i]);
+        }
+        try{
+            functionRef.apply(object, args);
+        }catch(e){
+            console.error(e)
+            //nothing here
+        }
     }
 
 };
 
+
+var f = function(i, j){
+    console.log("calcul : "+(i+j));
+}
+kumo.tryFunction(this, f, 2, 3);
 
 
 if (!window.console) {
