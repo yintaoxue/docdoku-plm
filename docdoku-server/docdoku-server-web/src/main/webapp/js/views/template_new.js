@@ -16,7 +16,7 @@ define([
 		rendered: function () {
 			this.attributesView = this.addSubView(
 				new TemplateNewAttributesView({
-					el: "#tab-attributes-" + this.cid,
+					el: "#tab-attributes-" + this.cid
 				})
 			).render();
 		},

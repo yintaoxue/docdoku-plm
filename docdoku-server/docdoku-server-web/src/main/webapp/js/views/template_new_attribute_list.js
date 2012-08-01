@@ -10,7 +10,7 @@ define([
 			return new TemplateNewAttributeListItemView({
 				model: model
 			});
-		},
+		}
 	});
 	return TemplateNewAttributeListView;
 });

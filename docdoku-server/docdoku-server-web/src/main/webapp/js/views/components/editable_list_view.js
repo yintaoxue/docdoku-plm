@@ -5,13 +5,29 @@ define([
 
         debug:true,
         className : 'EditableListView',
-
+        defaults : {
+          itemPartial: "{{.}}",
+          listName : "Unknown List"
+        },
 
         tagName:'ul',
 
         initialize:function () {
             var self = this;
             //Check validity
+
+            if (kumo.devMode){
+                if (kumo.isEmpty(this.listName)){
+                    console.log("no listName set ; please set it for easier debug")
+                }
+                if (kumo.isEmpty(this.options.itemsData)){
+                    console.error("no itemsData set to the List "+this.listName);
+                }
+
+                if (kumo.isEmpty(this.options.itemPartial)){
+                    console.log("No 'itemPartial' set ; using toString() on objects");
+                }
+            }
             if (kumo.enableAssert) {
 
                 kumo.assert(_.isArray(this.getModels()), "EditableListView.model is not an array. There will be bugs");
@@ -20,10 +36,6 @@ define([
                 _.each(this.getModels(), function (item) {
                     kumo.assert(kumo.isNotEmpty(item.cid), "items must have a cid");
                 });
-
-                if (kumo.isEmpty(this.options.renderer)){
-                    console.log("No renderer set ; using toString() on objects");
-                }
 
 
 
@@ -42,10 +54,11 @@ define([
                         console.log("forwarding cancel to editor")
                        editor.trigger("state:cancel")
                     });
-
-
                 }
             }
+
+            //initialize :
+            kumo.applyIf(this.options, this.defaults);
 
 
             //events
@@ -101,12 +114,10 @@ define([
                 this.trigger("list:selected", selectedObject, checkbox.parents("li"));
                 kumo.assert(! _.include(this.selection, selectedObject), "The selection already contains the selectedObject :"+selectedObject);
                 this.selection.add(selectedObject);
-                kumo.debug(this.selection.length)
             }else{
                 this.trigger("list:unselected", selectedObject, checkbox.parents("li"));
                 kumo.assert(! _.include(this.selection, selectedObject), "The selection does not the selectedObject "+selectedObject);
                 this.selection.remove(selectedObject);
-                kumo.debug(this.selection.length)
             }
 
         },
@@ -115,23 +126,21 @@ define([
 
             this.$el.addClass('editable-list');
 
+            var fullTemplate = this.fullTemplate();
+
+            //Extract data from the item collection
+            var itemsData = this.model.map(this.options.dataMapper);
 
             var data = {
                 listId:this.cid,
-                model: this.model.map(this.getRenderer().mapper),
-                later : this.getNewItems().map(this.getRenderer().mapper),
+                items: itemsData,
                 editable:this.options.editable
             };
 
-            var partial;
-            if (kumo.isEmpty(this.options.renderer)){
-                partial = {renderer : "{{.}}"}
-            }else{
-                partial = {renderer : this.getRenderer().partial};
-            }
-
-            var fullTemplate = this.fullTemplate();
-            var html = Mustache.to_html(fullTemplate, data, partial);
+            var html = Mustache.to_html(fullTemplate,
+                data,
+                {itemPartial: this.options.itemPartial}
+             );
             this.$el.html(html);
 
             this.getCancelButton().hide();
@@ -142,33 +151,20 @@ define([
 
 
 
-        templateString:function () {
-
-            var editionLink =
-                "{{#editable}}<button class='editable-list-edit-button'>Edit</button>{{/editable}}";
-
-            var li = "<li class='editable-list-item'>{{.}}" + editionLink + "</li>";
-
-
-            var str = "{{#model}}" + li + "{{/model}}";
-            return str;
-
-        },
-
         fullTemplate:function () {
-            return this.listTemplate() + /*this.laterItemsTemplate() +*/ this.editorPlaceTemplate() + this.controlBarTemplate();
+            return this.listTemplate() + this.editorPlaceTemplate() + this.controlBarTemplate();
         },
 
         listTemplate:function () {
 
             var list =
                 "<ul id='{{listId}}'>\n" +
-                    "{{#model}}\n" +
+                    "{{#items}}\n" +
                     "<li id='item-{{cid}}' class='list-item editable-list-item'>\n" +
                     "{{#editable}}<input class='item-selection' type='checkbox' value='{{cid}}' />{{/editable}}\n" + //delete Button
-                   "{{>renderer}}"+
+                   "{{>itemPartial}}"+ //custom display of the object
                     "</li>\n" +
-                    "{{/model}}\n" +
+                    "{{/items}}\n" +
 
 
                     "</ul>\n";
@@ -176,17 +172,7 @@ define([
             return list;
         },
 
-        //Display items that are not yet saved
-        laterItemsTemplate:function () {
-            return "<ul id='editable-list-later-" + this.cid + "' class='editable-list-later'>" +
-                "{{#later}}" +
-                "<li id='item-{{cid}}' class='list-item editable-list-added-item'>" +
-                "{{#editable}}<input class='item-selection' type='checkbox' value='{{cid}}' />{{/editable}}\n" + //delete Button" +
-                "{{>renderer}}" +
-                "</li>" +
-                "{{/later}}" +
-                "</ul>";
-        },
+
 
         editorPlaceTemplate:function () {
             return "<div id='editable-list-editor-" + this.cid + "' class='editable-list-editor'>" +

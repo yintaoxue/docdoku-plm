@@ -24,7 +24,6 @@ define([
             //list of further uploaded files view
 			this.uploadViews = [];
 
-            kumo.debug("cid : "+this.cid + " ; className :"+this.className);
 		},
 
         getDocumentIteration : function(){

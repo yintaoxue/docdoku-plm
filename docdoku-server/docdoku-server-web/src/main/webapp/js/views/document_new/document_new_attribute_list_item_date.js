@@ -42,7 +42,7 @@ define([
 				).getTime();
 			};
 			return value;
-		},
+		}
 	});
 	return DocumentNewAttributeListItemDateView;
 });
