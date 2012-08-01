@@ -94,7 +94,6 @@ define([
 
 
         /**
-         * @deprecated ; use this.getUrl()
          * TODO : track and remove calls to this function
          */
 		url: function() {
