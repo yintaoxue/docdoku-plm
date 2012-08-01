@@ -6,10 +6,8 @@ define([
 	singletonDecorator
 ) {
 	var WorkflowList = Backbone.Collection.extend({
-		model: Workflow
-	});
-	WorkflowList.prototype.__defineGetter__("url", function () {
-		return "/api/workspaces/" + APP_CONFIG.workspaceId + "/workflows";
+		model: Workflow,
+        url: "/api/workspaces/" + APP_CONFIG.workspaceId + "/workflows"
 	});
 	WorkflowList = singletonDecorator(WorkflowList);
     WorkflowList.className="WorkflowList";
