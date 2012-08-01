@@ -131,7 +131,7 @@ define([
             }
 
             var fullTemplate = this.fullTemplate();
-            var html = Mustache.to_html(fullTemplate, data, partial);
+            var html = Mustache.render(fullTemplate, data, partial);
             this.$el.html(html);
 
             this.getCancelButton().hide();
