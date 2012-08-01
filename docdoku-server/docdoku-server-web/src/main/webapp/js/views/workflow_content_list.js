@@ -1,25 +1,33 @@
 define([
+    "collections/workflow",
 	"views/content",
 	"views/workflow_list",
-	//"views/workflow_new",
+	"views/workflow_new",
 	"text!templates/workflow_content_list.html"
 ], function (
+    WorkflowList,
 	ContentView,
 	WorkflowListView,
-	//WorkflowNewView,
+	WorkflowNewView,
 	template
 ) {
 	var WorkflowContentListView = ContentView.extend({
 		template: Mustache.compile(template),
+        collection: function () {
+            return new WorkflowList();
+        },
 		initialize: function () {
 			ContentView.prototype.initialize.apply(this, arguments);
-			this.events["click .actions .new"] = "actionNew";
+			this.events["click .actions .new-workflow"] = "actionNew";
 			this.events["click .actions .delete"] = "actionDelete";
+            if (this.model) {
+                this.collection.parent = this.model;
+            }
 		},
 		rendered: function () {
 			this.listView = this.addSubView(
 				new WorkflowListView({
-					el: "#list-" + this.cid,
+					el: "#list-" + this.cid
 				})
 			);
 			this.listView.collection.fetch();
@@ -33,7 +41,9 @@ define([
 		},
 		actionNew : function () {
 			var view = this.addSubView(
-				new WorkflowNewView()
+				new WorkflowNewView({
+                    collection: this.collection
+                })
 			).render();
 			return false;
 		},
@@ -42,7 +52,7 @@ define([
 				view.model.destroy();
 			});
 			return false;
-		},
+		}
 	});
 	return WorkflowContentListView;
 });
