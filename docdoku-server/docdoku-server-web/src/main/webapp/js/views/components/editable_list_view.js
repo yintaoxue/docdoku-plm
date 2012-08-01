@@ -20,8 +20,8 @@ define([
                 if (kumo.isEmpty(this.listName)){
                     console.log("no listName set ; please set it for easier debug")
                 }
-                if (kumo.isEmpty(this.options.itemsData)){
-                    console.error("no itemsData set to the List "+this.listName);
+                if (kumo.isEmpty(this.options.dataMapper)){
+                    console.error("no dataMapper set to the List "+this.listName);
                 }
 
                 if (kumo.isEmpty(this.options.itemPartial)){

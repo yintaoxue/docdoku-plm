@@ -3,7 +3,7 @@ define([
 ], function (
     ListItemView
     ) {
-    var AttributeListItemView = ListItemView.extend({
+    var AttributeItemView = ListItemView.extend({
         tagName: "div",
         initialize: function () {
             ListItemView.prototype.initialize.apply(this, arguments);
@@ -43,5 +43,5 @@ define([
             return el.val();
         }
     });
-    return AttributeListItemView;
+    return AttributeItemView;
 });

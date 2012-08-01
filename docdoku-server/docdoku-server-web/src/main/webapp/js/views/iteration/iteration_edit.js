@@ -61,11 +61,11 @@ define([
 
             //Attributes tab
             kumo.assertNotEmpty($("#iteration-attributes"), "no tab for attributes");
-           /* this.attributesView = new AttributesView({
+            this.attributesView = new AttributesView({
                 el : $("#iteration-attributes")
             }).render();
 
-            */
+
 
 
             //File Tab
