@@ -7,17 +7,17 @@
  */
 
 define([
-    "views/components/modal",
-    "text!templates/workflow_new.html"
+    "views/content",
+    "text!templates/workflow_content_new.html"
 ], function (
-    ModalView,
+    ContentView,
     template
     ) {
-    var WorkflowNewView = ModalView.extend({
+    var WorkflowContentNewView = ContentView.extend({
         template: Mustache.compile(template),
         tagName: "div",
         initialize: function () {
-            ModalView.prototype.initialize.apply(this, arguments);
+            ContentView.prototype.initialize.apply(this, arguments);
             this.events["submit form"] = "primaryAction";
         },
         primaryAction: function () {
@@ -48,6 +48,6 @@ define([
             }
         }
     });
-    return WorkflowNewView;
+    return WorkflowContentNewView;
 });
 

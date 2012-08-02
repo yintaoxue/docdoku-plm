@@ -69,6 +69,7 @@ define(function () {
 		"VERSION":						"Version",
 		"WORKFLOWS":					"Workflows",
 		"WORKFLOW":						"Workflow",
+        "WORKFLOW_NAME_PLACEHOLDER":    "Nom du nouveau workflow",
 		"WORKSPACES":					"Workspaces",
 	};
 	return i18n;

@@ -2,13 +2,13 @@ define([
     "collections/workflow",
 	"views/content",
 	"views/workflow_list",
-	"views/workflow_new",
+	"views/workflow_content_new",
 	"text!templates/workflow_content_list.html"
 ], function (
     WorkflowList,
 	ContentView,
 	WorkflowListView,
-	WorkflowNewView,
+	WorkflowContentNewView,
 	template
 ) {
 	var WorkflowContentListView = ContentView.extend({
@@ -41,7 +41,7 @@ define([
 		},
 		actionNew : function () {
 			var view = this.addSubView(
-				new WorkflowNewView({
+				new WorkflowContentNewView({
                     collection: this.collection
                 })
 			).render();

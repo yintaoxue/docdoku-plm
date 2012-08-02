@@ -22,8 +22,10 @@ package com.docdoku.server.rest;
 import com.docdoku.core.common.User;
 import com.docdoku.core.security.UserGroupMapping;
 import com.docdoku.core.services.IDocumentManagerLocal;
+import com.docdoku.core.workflow.ActivityModel;
 import com.docdoku.core.workflow.WorkflowModel;
 import com.docdoku.core.workflow.WorkflowModelKey;
+import com.docdoku.server.rest.dto.ActivityModelDTO;
 import com.docdoku.server.rest.dto.UserDTO;
 import com.docdoku.server.rest.dto.WorkflowModelDTO;
 import javax.annotation.PostConstruct;
@@ -36,6 +38,8 @@ import javax.ws.rs.core.Response;
 import org.dozer.DozerBeanMapperSingletonWrapper;
 import org.dozer.Mapper;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -69,9 +73,9 @@ public class WorkflowResource {
             WorkflowModelDTO[] dtos = new WorkflowModelDTO[workflowModels.length];
             
             for(int i=0; i<workflowModels.length; i++){
-                User workflowAuhtor = workflowModels[i].getAuthor();
-                UserDTO worflowAuthor = mapper.map(workflowAuhtor,UserDTO.class);
-                dtos[i]=new WorkflowModelDTO(workflowModels[i].getId(), worflowAuthor);
+                User workflowAuthor = workflowModels[i].getAuthor();
+                UserDTO workflowAuthorDTO = mapper.map(workflowAuthor,UserDTO.class);
+                dtos[i]=new WorkflowModelDTO(workflowModels[i].getId(), workflowAuthorDTO);
             }
             
             return dtos;
@@ -83,7 +87,7 @@ public class WorkflowResource {
 
     @DELETE
     @Path("{workflowModelId}")    
-        public Response delWorkflowModel(@PathParam("workspaceId") String workspaceId, @PathParam("workflowModelId") String workflowModelId){
+    public Response delWorkflowModel(@PathParam("workspaceId") String workspaceId, @PathParam("workflowModelId") String workflowModelId){
         try {
             documentService.deleteWorkflowModel(new WorkflowModelKey(workspaceId, workflowModelId));
             return Response.status(Response.Status.OK).build();
@@ -91,5 +95,29 @@ public class WorkflowResource {
             throw new RestApiException(ex.toString(), ex.getMessage());
         }
     }
-    
+
+    @POST
+    @Produces("application/json;charset=UTF-8")
+    public WorkflowModelDTO createWorkflowModelInWorkspace(@PathParam("workspaceId") String workspaceId, WorkflowModelDTO workflowModelDTOToPersist) {
+        try {
+            List<ActivityModelDTO> activityModelDTOsList = workflowModelDTOToPersist.getActivityModels();
+
+            ActivityModel[] activityModels = new ActivityModel[activityModelDTOsList.size()];
+            for(int i=0; i<activityModels.length; i++){
+                activityModels[i] = mapper.map(activityModelDTOsList.get(i), ActivityModel.class);
+            }
+
+            WorkflowModel workflowModel = documentService.createWorkflowModel(workspaceId, workflowModelDTOToPersist.getId(), workflowModelDTOToPersist.getFinalLifeCycleState(), activityModels);
+
+            User workflowAuthor = workflowModel.getAuthor();
+            UserDTO workflowAuthorDTO = mapper.map(workflowAuthor,UserDTO.class);
+            WorkflowModelDTO dto = new WorkflowModelDTO(workflowModel.getId(), workflowAuthorDTO);
+
+            return dto;
+
+        } catch (com.docdoku.core.services.ApplicationException ex) {
+            throw new RestApiException(ex.toString(), ex.getMessage());
+        }
+    }
+
 }
