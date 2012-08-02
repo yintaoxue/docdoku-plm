@@ -20,25 +20,46 @@
 package com.docdoku.core.product;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OrderColumn;
 
 /**
- *
+ * This class is related to a <code>PartUsageLink</code> to indicate
+ * a replacement part that could be used instead.
+ * 
  * @author Florent Garin
  * @version 1.1, 16/10/11
  * @since   V1.1
  */
-@Embeddable
+@Entity
 public class PartSubstituteLink implements Serializable {
-    
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    private int id;
     private String referenceDescription;
     private String comment;
     
-    @ManyToOne(optional=false, fetch=FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private PartMaster substitute;
 
+    @OrderColumn(name = "CADINSTANCE_ORDER")
+    @CollectionTable(name = "PARTSUBSTITUTELINK_CADINSTANCE", joinColumns = {
+        @JoinColumn(name = "PARTSUBSTITUTELINK_ID", referencedColumnName = "ID")
+    })
+    @ElementCollection(fetch = FetchType.LAZY)
+    private List<CADInstance> cadInstances = new LinkedList<CADInstance>();
 
     public PartSubstituteLink() {
     }
@@ -66,5 +87,12 @@ public class PartSubstituteLink implements Serializable {
     public void setReferenceDescription(String referenceDescription) {
         this.referenceDescription = referenceDescription;
     }
-    
+
+    public List<CADInstance> getCadInstances() {
+        return cadInstances;
+    }
+
+    public void setCadInstances(List<CADInstance> cadInstances) {
+        this.cadInstances = cadInstances;
+    }
 }

@@ -30,30 +30,21 @@ import com.docdoku.core.security.ACL;
 import com.docdoku.core.security.ACLUserEntry;
 import com.docdoku.core.security.ACLUserGroupEntry;
 import com.docdoku.core.security.UserGroupMapping;
-import com.docdoku.core.services.ICommandLocal;
-import com.docdoku.server.http.FileConverter;
+import com.docdoku.core.services.IDocumentManagerLocal;
 import com.docdoku.server.rest.dto.*;
 import com.docdoku.server.rest.exceptions.ApplicationException;
 import org.dozer.DozerBeanMapperSingletonWrapper;
 import org.dozer.Mapper;
 
-import javax.activation.FileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.servlet.ServletContext;
-import javax.transaction.Status;
 import javax.transaction.UserTransaction;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -65,25 +56,16 @@ import java.util.Map;
 public class DocumentResource {
 
     @EJB
-    private ICommandLocal commandService;
+    private IDocumentManagerLocal documentService;
     private final static int CHUNK_SIZE = 1024 * 8;
     private final static int BUFFER_CAPACITY = 1024 * 16;
     @Resource
     private UserTransaction utx;
-    @Context
-    private UriInfo context;
 
-    
-    private ServletContext servletContext;
-    
+
     private Mapper mapper;
 
     public DocumentResource() {
-    }
-
-    @Context
-    public void setServletContext(ServletContext servletContext){
-        this.servletContext = servletContext;
     }
 
     @PostConstruct
@@ -99,12 +81,12 @@ public class DocumentResource {
      */
     @GET
     @Produces("application/json;charset=UTF-8")
-    public DocumentMasterDTO[] getRootDocuments(@PathParam("workspaceId") String workspaceId, @QueryParam("tag") String label, @QueryParam("path") String path) {
+    public DocumentMasterDTO[] getRootDocuments(@PathParam("workspaceId") String workspaceId) {
 
         try {
 
-            String pCompletePath = Tools.stripTrailingSlash(workspaceId);
-            DocumentMaster[] docM = commandService.findDocumentMastersByFolder(pCompletePath);
+            String wksId = Tools.stripTrailingSlash(workspaceId);
+            DocumentMaster[] docM = documentService.findDocumentMastersByFolder(wksId);
             DocumentMasterDTO[] dtos = new DocumentMasterDTO[docM.length];
 
             for (int i = 0; i < docM.length; i++) {
@@ -127,9 +109,9 @@ public class DocumentResource {
 //
 //        try {
 //
-//            DocumentMasterKey[] docMKey = commandService.getIterationChangeEventSubscriptions(workspaceId);
+//            DocumentMasterKey[] docMKey = documentService.getIterationChangeEventSubscriptions(workspaceId);
 //            DocumentMasterDTO[] data = new DocumentMasterDTO[docMKey.length];
-//            
+//
 //            for (int i = 0; i < docMKey.length; i++) {
 //                DocumentMasterDTO dto = new DocumentMasterDTO();
 //                dto.setWorkspaceID(docMKey[i].getWorkspaceId());
@@ -137,15 +119,15 @@ public class DocumentResource {
 //                dto.setReference(docMKey[i].getId());
 //                dto.setVersion(docMKey[i].getVersion());
 //                data[i] = dto;
-//            }       
+//            }
 //
 //            return data;
-//            
+//
 //        } catch (com.docdoku.core.services.ApplicationException ex) {
 //            throw new RESTException(ex.toString(), ex.getMessage());
 //        }
 //
-//    }    
+//    }
 //
 //    @GET
 //    @Path()
@@ -154,9 +136,9 @@ public class DocumentResource {
 //
 //        try {
 //
-//            DocumentMasterKey[] docMKey = commandService.getStateChangeEventSubscriptions(workspaceId);
+//            DocumentMasterKey[] docMKey = documentService.getStateChangeEventSubscriptions(workspaceId);
 //            DocumentMasterDTO[] data = new DocumentMasterDTO[docMKey.length];
-//            
+//
 //            for (int i = 0; i < docMKey.length; i++) {
 //                DocumentMasterDTO dto = new DocumentMasterDTO();
 //                dto.setWorkspaceID(docMKey[i].getWorkspaceId());
@@ -164,23 +146,23 @@ public class DocumentResource {
 //                dto.setReference(docMKey[i].getId());
 //                dto.setVersion(docMKey[i].getVersion());
 //                data[i] = dto;
-//            }       
+//            }
 //
 //            return data;
-//            
+//
 //        } catch (com.docdoku.core.services.ApplicationException ex) {
 //            throw new RESTException(ex.toString(), ex.getMessage());
 //        }
 //
-//    }    
-//    
+//    }
+//
     @GET
     @Path("checkedout")
     @Produces("application/json;charset=UTF-8")
     public DocumentMasterDTO[] getCheckedOutDocMs(@PathParam("workspaceId") String workspaceId) throws ApplicationException {
 
         try {
-            DocumentMaster[] checkedOutdocMs = commandService.getCheckedOutDocumentMasters(workspaceId);
+            DocumentMaster[] checkedOutdocMs = documentService.getCheckedOutDocumentMasters(workspaceId);
             DocumentMasterDTO[] checkedOutdocMsDTO = new DocumentMasterDTO[checkedOutdocMs.length];
 
             for (int i = 0; i < checkedOutdocMs.length; i++) {
@@ -208,7 +190,7 @@ public class DocumentResource {
 
 
         try {
-            DocumentMaster docM = commandService.getDocumentMaster(new DocumentMasterKey(workspaceId, id, version));
+            DocumentMaster docM = documentService.getDocumentMaster(new DocumentMasterKey(workspaceId, id, version));
             DocumentMasterDTO docMsDTO = mapper.map(docM, DocumentMasterDTO.class);
             docMsDTO.setPath(docM.getLocation().getCompletePath());
             docMsDTO.setLifeCycleState(docM.getLifeCycleState());
@@ -237,7 +219,7 @@ public class DocumentResource {
             String docId = docKey.substring(0, lastDash);
             String docVersion = docKey.substring(lastDash + 1, docKey.length());
 
-            DocumentMaster docM = commandService.checkIn(new DocumentMasterKey(workspaceId, docId, docVersion));
+            DocumentMaster docM = documentService.checkIn(new DocumentMasterKey(workspaceId, docId, docVersion));
 
             DocumentMasterDTO docMsDTO = mapper.map(docM, DocumentMasterDTO.class);
             docMsDTO.setPath(docM.getLocation().getCompletePath());
@@ -260,7 +242,7 @@ public class DocumentResource {
             String docId = docKey.substring(0, lastDash);
             String docVersion = docKey.substring(lastDash + 1, docKey.length());
 
-            DocumentMaster docM = commandService.checkOut(new DocumentMasterKey(workspaceId, docId, docVersion));
+            DocumentMaster docM = documentService.checkOut(new DocumentMasterKey(workspaceId, docId, docVersion));
 
             DocumentMasterDTO docMsDTO = mapper.map(docM, DocumentMasterDTO.class);
             docMsDTO.setPath(docM.getLocation().getCompletePath());
@@ -284,7 +266,7 @@ public class DocumentResource {
             String docId = docKey.substring(0, lastDash);
             String docVersion = docKey.substring(lastDash + 1, docKey.length());
 
-            DocumentMaster docM = commandService.undoCheckOut(new DocumentMasterKey(workspaceId, docId, docVersion));
+            DocumentMaster docM = documentService.undoCheckOut(new DocumentMasterKey(workspaceId, docId, docVersion));
 
             DocumentMasterDTO docMsDTO = mapper.map(docM, DocumentMasterDTO.class);
             docMsDTO.setPath(docM.getLocation().getCompletePath());
@@ -311,7 +293,7 @@ public class DocumentResource {
             String newCompletePath = Tools.stripTrailingSlash(workspaceId + "/" + parentFolderPath);
 
             DocumentMasterKey docMsKey = new DocumentMasterKey(workspaceId, docId, docVersion);
-            DocumentMaster movedDocumentMaster = commandService.moveDocumentMaster(newCompletePath, docMsKey);
+            DocumentMaster movedDocumentMaster = documentService.moveDocumentMaster(newCompletePath, docMsKey);
 
             DocumentMasterDTO docMsDTO = mapper.map(movedDocumentMaster, DocumentMasterDTO.class);
             docMsDTO.setPath(movedDocumentMaster.getLocation().getCompletePath());
@@ -332,7 +314,7 @@ public class DocumentResource {
             String docId = docKey.substring(0, lastDash);
             String docVersion = docKey.substring(lastDash + 1, docKey.length());
 
-            commandService.subscribeToIterationChangeEvent(new DocumentMasterKey(workspaceId, docId, docVersion));
+            documentService.subscribeToIterationChangeEvent(new DocumentMasterKey(workspaceId, docId, docVersion));
 
             return Response.ok().build();
         } catch (com.docdoku.core.services.ApplicationException ex) {
@@ -348,7 +330,7 @@ public class DocumentResource {
             String docId = docKey.substring(0, lastDash);
             String docVersion = docKey.substring(lastDash + 1, docKey.length());
 
-            commandService.unsubscribeToIterationChangeEvent(new DocumentMasterKey(workspaceId, docId, docVersion));
+            documentService.unsubscribeToIterationChangeEvent(new DocumentMasterKey(workspaceId, docId, docVersion));
 
             return Response.ok().build();
         } catch (com.docdoku.core.services.ApplicationException ex) {
@@ -364,7 +346,7 @@ public class DocumentResource {
             String docId = docKey.substring(0, lastDash);
             String docVersion = docKey.substring(lastDash + 1, docKey.length());
 
-            commandService.subscribeToStateChangeEvent(new DocumentMasterKey(workspaceId, docId, docVersion));
+            documentService.subscribeToStateChangeEvent(new DocumentMasterKey(workspaceId, docId, docVersion));
 
             return Response.ok().build();
         } catch (com.docdoku.core.services.ApplicationException ex) {
@@ -380,7 +362,7 @@ public class DocumentResource {
             String docId = docKey.substring(0, lastDash);
             String docVersion = docKey.substring(lastDash + 1, docKey.length());
 
-            commandService.unsubscribeToStateChangeEvent(new DocumentMasterKey(workspaceId, docId, docVersion));
+            documentService.unsubscribeToStateChangeEvent(new DocumentMasterKey(workspaceId, docId, docVersion));
 
             return Response.ok().build();
         } catch (com.docdoku.core.services.ApplicationException ex) {
@@ -414,7 +396,7 @@ public class DocumentResource {
                 attributes = createInstanceAttribute(instanceAttributes);
             }
 
-            DocumentMaster docM = commandService.updateDocument(new DocumentIterationKey(pWorkspaceId, pID, pVersion, pIteration), pRevisionNote, attributes, links);
+            DocumentMaster docM = documentService.updateDocument(new DocumentIterationKey(pWorkspaceId, pID, pVersion, pIteration), pRevisionNote, attributes, links);
             DocumentIterationDTO docDTO = mapper.map(docM.getLastIteration(), DocumentIterationDTO.class);
             return docDTO;
         } catch (com.docdoku.core.services.ApplicationException ex) {
@@ -463,7 +445,7 @@ public class DocumentResource {
                     userGroupEntries[i++].setPermission(ACL.Permission.valueOf(entry.getValue().name()));
                 }
             }
-            DocumentMaster[] docM = commandService.createVersion(new DocumentMasterKey(pWorkspaceId, pID, pVersion), pTitle, pDescription, pWorkflowModelId, userEntries, userGroupEntries);
+            DocumentMaster[] docM = documentService.createVersion(new DocumentMasterKey(pWorkspaceId, pID, pVersion), pTitle, pDescription, pWorkflowModelId, userEntries, userGroupEntries);
             DocumentMasterDTO[] dtos = new DocumentMasterDTO[docM.length];
 
             for (int i = 0; i < docM.length; i++) {
@@ -496,7 +478,7 @@ public class DocumentResource {
         }
 
         try {
-            DocumentMaster docMs = commandService.saveTags(new DocumentMasterKey(workspaceId, id, version), tagsLabel);
+            DocumentMaster docMs = documentService.saveTags(new DocumentMasterKey(workspaceId, id, version), tagsLabel);
             DocumentMasterDTO docMsDto = mapper.map(docMs, DocumentMasterDTO.class);
             docMsDto.setPath(docMs.getLocation().getCompletePath());
             docMsDto.setLifeCycleState(docMs.getLifeCycleState());
@@ -552,7 +534,7 @@ public class DocumentResource {
                 }
             }
 
-            DocumentMaster createdDocMs = commandService.createDocumentMaster(pParentFolder, pDocMID, pTitle, pDescription, pDocMTemplateId, pWorkflowModelId, userEntries, userGroupEntries);
+            DocumentMaster createdDocMs = documentService.createDocumentMaster(pParentFolder, pDocMID, pTitle, pDescription, pDocMTemplateId, pWorkflowModelId, userEntries, userGroupEntries);
             DocumentMasterDTO docMsDTO = mapper.map(createdDocMs, DocumentMasterDTO.class);
             docMsDTO.setPath(createdDocMs.getLocation().getCompletePath());
             docMsDTO.setLifeCycleState(createdDocMs.getLifeCycleState());
@@ -581,7 +563,7 @@ public class DocumentResource {
         String version = docKey.substring(lastDash + 1, docKey.length());
 
         try {
-            commandService.deleteDocumentMaster(new DocumentMasterKey(workspaceId, id, version));
+            documentService.deleteDocumentMaster(new DocumentMasterKey(workspaceId, id, version));
             return Response.status(Response.Status.OK).build();
         } catch (com.docdoku.core.services.ApplicationException ex) {
             throw new RestApiException(ex.toString(), ex.getMessage());
@@ -590,17 +572,17 @@ public class DocumentResource {
 
     @DELETE
     @Consumes("application/json;charset=UTF-8")
-    @Path("{docKey}/iterations/{docIteration}/files/{fileShortName}")
-    public Response removeAttachedFile(@PathParam("workspaceId") String workspaceId, @PathParam("docKey") String docKey, @PathParam("docIteration") int docIteration, @PathParam("fileShortName") String fileShortName) {
+    @Path("{docKey}/iterations/{docIteration}/files/{fileName}")
+    public Response removeAttachedFile(@PathParam("workspaceId") String workspaceId, @PathParam("docKey") String docKey, @PathParam("docIteration") int docIteration, @PathParam("fileName") String fileName) {
         try {
             int lastDash = docKey.lastIndexOf('-');
             String id = docKey.substring(0, lastDash);
             String version = docKey.substring(lastDash + 1, docKey.length());
 
-            String fileFullName = workspaceId + "/documents/" + id + "/" + version + "/" + docIteration + "/" + fileShortName;
+            String fileFullName = workspaceId + "/documents/" + id + "/" + version + "/" + docIteration + "/" + fileName;
             System.out.println("fileFullName : " + fileFullName);
 
-            commandService.removeFileFromDocument(fileFullName);
+            documentService.removeFileFromDocument(fileFullName);
             return Response.ok().build();
 
         } catch (com.docdoku.core.services.ApplicationException ex) {
@@ -608,116 +590,116 @@ public class DocumentResource {
         }
     }
 
-    @POST
-    @Path("{docKey}/iterations/{docIteration}/files/{fileName}")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces("application/json;charset=UTF-8")
-    public Response uploadFile(@FormParam("upload") File upload, @PathParam("workspaceId") String workspaceId, @PathParam("docKey") String docKey, @PathParam("docIteration") int docIteration, @PathParam("fileName") String fileName) {
-        try {
-            utx.begin();
-            int lastDash = docKey.lastIndexOf('-');
-            String id = docKey.substring(0, lastDash);
-            String version = docKey.substring(lastDash + 1, docKey.length());
-
-            DocumentIterationKey docPK = new DocumentIterationKey(workspaceId, id, version, docIteration);
-            File vaultFile = commandService.saveFileInDocument(docPK, fileName, 0);
-
-            vaultFile.getParentFile().mkdirs();
-            vaultFile.createNewFile();
-
-            InputStream in = new BufferedInputStream(new FileInputStream(upload), BUFFER_CAPACITY);
-            OutputStream out = new BufferedOutputStream(new FileOutputStream(vaultFile), BUFFER_CAPACITY);
-
-            byte[] data = new byte[CHUNK_SIZE];
-            int length;
-            try {
-                while ((length = in.read(data)) != -1) {
-                    out.write(data, 0, length);
-                }
-            } finally {
-                in.close();
-                out.close();
-            }
-            commandService.saveFileInDocument(docPK, fileName, vaultFile.length());
-            utx.commit();
-            return Response.ok().build();
-        } catch (Exception ex) {
-            throw new RestApiException(ex.toString(), ex.getMessage());
-        } finally {
-            try {
-                if (utx.getStatus() == Status.STATUS_ACTIVE || utx.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
-                    utx.rollback();
-                }
-            } catch (Exception ex) {
-                throw new RestApiException(ex.toString(), ex.getMessage());
-            }
-        }
-    }
-
-    @GET
-    @Consumes("application/json;charset=UTF-8")
-    @Path("{docKey}/iterations/{docIteration}/files/{fileName}")
-    public Response downloadFile(@PathParam("workspaceId") String workspaceId, @PathParam("docKey") String docKey, @PathParam("docIteration") int docIteration, @PathParam("fileName") String fileName, @HeaderParam("Range") Range pRange, @QueryParam("type") String type) {
-        try {
-            String elementType = "documents";
-            int lastDash = docKey.lastIndexOf('-');
-            String id = docKey.substring(0, lastDash);
-            String version = docKey.substring(lastDash + 1, docKey.length());
-
-            String fullName = workspaceId + "/" + elementType + "/" + id + "/" + version + "/" + docIteration + "/" + fileName;
-
-
-            File dataFile = commandService.getDataFile(fullName);
-            File fileToOutput = null;
-            String contentType = FileTypeMap.getDefaultFileTypeMap().getContentType(dataFile);
-            String contentDisposition = null;
-
-            if ("pdf".equals(type)) {
-                contentType = "application/pdf";
-                String ooHome = servletContext.getInitParameter("OO_HOME");
-                int ooPort = Integer.parseInt(servletContext.getInitParameter("OO_PORT"));
-                fileToOutput = new FileConverter(ooHome, ooPort).convertToPDF(dataFile);
-            } else if ("swf".equals(type)) {
-                contentType = "application/x-shockwave-flash";
-                String pdf2SWFHome = servletContext.getInitParameter("PDF2SWF_HOME");
-                String ooHome = servletContext.getInitParameter("OO_HOME");
-                int ooPort = Integer.parseInt(servletContext.getInitParameter("OO_PORT"));
-                FileConverter fileConverter = new FileConverter(pdf2SWFHome, ooHome, ooPort);
-                fileToOutput = fileConverter.convertToSWF(dataFile);
-            } else {
-                contentDisposition = "attachment; filename=\"" + dataFile.getName() + "\"";             
-                fileToOutput = dataFile;
-            }
-
-            ResponseBuilder rb;
-            if (pRange != null) {
-                try {
-                    Range properRange = Range.validateRangeWithFile(pRange, fileToOutput);
-                    rb = Response.status(206);
-                    rb.type(contentType);
-                    rb.entity(new StreamingBinaryResourceOutput(fileToOutput, properRange));
-                    rb.header("Content-Length", properRange.getlengthOfTheBytesRange());
-                    rb.header("Content-Range", "bytes " + properRange.getMin() + "-" + properRange.getMax() + "/" + fileToOutput.length() + "");
-                } catch (RequestedRangeNotSatisfiableException ex) {
-                    rb = Response.status(416);
-                    rb.header("Content-Range", "bytes */" + fileToOutput.length() + "");
-                }
-            } else {
-                rb = Response.ok();
-                rb.type(contentType);
-                rb.entity(new StreamingBinaryResourceOutput(fileToOutput));
-                rb.header("Content-Length", fileToOutput.length());
-            }
-            if(contentDisposition!=null)
-                rb.header("Content-disposition", contentDisposition);
-            
-            rb.header("Accept-Ranges", "bytes");
-
-            return rb.build();
-        } catch (Exception ex) {
-            throw new RestApiException(ex.toString(), ex.getMessage());
-        }
-    }
+//    @POST
+//    @Path("{docKey}/iterations/{docIteration}/files/{fileName}")
+//    @Consumes(MediaType.MULTIPART_FORM_DATA)
+//    @Produces("application/json;charset=UTF-8")
+//    public Response uploadFile(@FormParam("upload") File upload, @PathParam("workspaceId") String workspaceId, @PathParam("docKey") String docKey, @PathParam("docIteration") int docIteration, @PathParam("fileName") String fileName) {
+//        try {
+//            utx.begin();
+//            int lastDash = docKey.lastIndexOf('-');
+//            String id = docKey.substring(0, lastDash);
+//            String version = docKey.substring(lastDash + 1, docKey.length());
+//
+//            DocumentIterationKey docPK = new DocumentIterationKey(workspaceId, id, version, docIteration);
+//            File vaultFile = documentService.saveFileInDocument(docPK, fileName, 0);
+//
+//            vaultFile.getParentFile().mkdirs();
+//            vaultFile.createNewFile();
+//
+//            InputStream in = new BufferedInputStream(new FileInputStream(upload), BUFFER_CAPACITY);
+//            OutputStream out = new BufferedOutputStream(new FileOutputStream(vaultFile), BUFFER_CAPACITY);
+//
+//            byte[] data = new byte[CHUNK_SIZE];
+//            int length;
+//            try {
+//                while ((length = in.read(data)) != -1) {
+//                    out.write(data, 0, length);
+//                }
+//            } finally {
+//                in.close();
+//                out.close();
+//            }
+//            documentService.saveFileInDocument(docPK, fileName, vaultFile.length());
+//            utx.commit();
+//            return Response.ok().build();
+//        } catch (Exception ex) {
+//            throw new RestApiException(ex.toString(), ex.getMessage());
+//        } finally {
+//            try {
+//                if (utx.getStatus() == Status.STATUS_ACTIVE || utx.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
+//                    utx.rollback();
+//                }
+//            } catch (Exception ex) {
+//                throw new RestApiException(ex.toString(), ex.getMessage());
+//            }
+//        }
+//    }
+//
+//    @GET
+//    @Consumes("application/json;charset=UTF-8")
+//    @Path("{docKey}/iterations/{docIteration}/files/{fileName}")
+//    public Response downloadFile(@PathParam("workspaceId") String workspaceId, @PathParam("docKey") String docKey, @PathParam("docIteration") int docIteration, @PathParam("fileName") String fileName, @HeaderParam("Range") Range pRange, @QueryParam("type") String type) {
+//        try {
+//            String elementType = "documents";
+//            int lastDash = docKey.lastIndexOf('-');
+//            String id = docKey.substring(0, lastDash);
+//            String version = docKey.substring(lastDash + 1, docKey.length());
+//
+//            String fullName = workspaceId + "/" + elementType + "/" + id + "/" + version + "/" + docIteration + "/" + fileName;
+//
+//
+//            File dataFile = documentService.getDataFile(fullName);
+//            File fileToOutput = null;
+//            String contentType = FileTypeMap.getDefaultFileTypeMap().getContentType(dataFile);
+//            String contentDisposition = null;
+//
+//            if ("pdf".equals(type)) {
+//                contentType = "application/pdf";
+//                String ooHome = servletContext.getInitParameter("OO_HOME");
+//                int ooPort = Integer.parseInt(servletContext.getInitParameter("OO_PORT"));
+//                fileToOutput = new FileConverter(ooHome, ooPort).convertToPDF(dataFile);
+//            } else if ("swf".equals(type)) {
+//                contentType = "application/x-shockwave-flash";
+//                String pdf2SWFHome = servletContext.getInitParameter("PDF2SWF_HOME");
+//                String ooHome = servletContext.getInitParameter("OO_HOME");
+//                int ooPort = Integer.parseInt(servletContext.getInitParameter("OO_PORT"));
+//                FileConverter fileConverter = new FileConverter(pdf2SWFHome, ooHome, ooPort);
+//                fileToOutput = fileConverter.convertToSWF(dataFile);
+//            } else {
+//                contentDisposition = "attachment; filename=\"" + dataFile.getName() + "\"";
+//                fileToOutput = dataFile;
+//            }
+//
+//            ResponseBuilder rb;
+//            if (pRange != null) {
+//                try {
+//                    Range properRange = Range.validateRangeWithFile(pRange, fileToOutput);
+//                    rb = Response.status(206);
+//                    rb.type(contentType);
+//                    rb.entity(new StreamingBinaryResourceOutput(fileToOutput, properRange));
+//                    rb.header("Content-Length", properRange.getlengthOfTheBytesRange());
+//                    rb.header("Content-Range", "bytes " + properRange.getMin() + "-" + properRange.getMax() + "/" + fileToOutput.length() + "");
+//                } catch (RequestedRangeNotSatisfiableException ex) {
+//                    rb = Response.status(416);
+//                    rb.header("Content-Range", "bytes */" + fileToOutput.length() + "");
+//                }
+//            } else {
+//                rb = Response.ok();
+//                rb.type(contentType);
+//                rb.entity(new StreamingBinaryResourceOutput(fileToOutput));
+//                rb.header("Content-Length", fileToOutput.length());
+//            }
+//            if(contentDisposition!=null)
+//                rb.header("Content-disposition", contentDisposition);
+//
+//            rb.header("Accept-Ranges", "bytes");
+//
+//            return rb.build();
+//        } catch (Exception ex) {
+//            throw new RestApiException(ex.toString(), ex.getMessage());
+//        }
+//    }
 
     private InstanceAttribute[] createInstanceAttribute(InstanceAttributeDTO[] dtos) {
         if (dtos == null) {

@@ -20,6 +20,7 @@
 package com.docdoku.core.product;
 
 import com.docdoku.core.common.User;
+import com.docdoku.core.common.Version;
 import com.docdoku.core.common.Workspace;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -72,7 +74,12 @@ public class PartMaster implements Serializable {
     })
     private User author;
     
-    @OrderColumn
+    
+    @OrderColumn(name="ALTERNATE_ORDER")
+    @CollectionTable(name="PARTMASTER_ALTERNATE",joinColumns={
+        @JoinColumn(name="PARTMASTER_WORKSPACE_ID", referencedColumnName="WORKSPACE_ID"),
+        @JoinColumn(name="PARTMASTER_NUMBER", referencedColumnName="NUMBER")
+    })    
     @ElementCollection(fetch = FetchType.LAZY)
     private List<PartAlternateLink> alternates = new LinkedList<PartAlternateLink>();
     
@@ -89,7 +96,8 @@ public class PartMaster implements Serializable {
     @OrderBy("version ASC")
     private List<PartRevision> partRevisions = new ArrayList<PartRevision>();
 
-
+    private boolean standardPart;
+    
     public PartMaster() {
     }
 
@@ -146,7 +154,46 @@ public class PartMaster implements Serializable {
     public void setPartRevisions(List<PartRevision> partRevisions) {
         this.partRevisions = partRevisions;
     }
+
+    public boolean isStandardPart() {
+        return standardPart;
+    }
+
+    public void setStandardPart(boolean standardPart) {
+        this.standardPart = standardPart;
+    }
     
+        
+    public PartRevision getLastRevision() {
+        int index = partRevisions.size()-1;
+        if(index < 0)
+            return null;
+        else
+            return partRevisions.get(index);
+    }
+    
+    public PartRevision removeLastRevision() {
+        int index = partRevisions.size()-1;
+        if(index < 0)
+            return null;
+        else
+            return partRevisions.remove(index);
+    }
+    
+    public PartRevision createNextRevision(User pUser){
+        PartRevision lastRev=getLastRevision();
+        Version version;
+        if(lastRev==null)
+            version = new Version("A");
+        else{
+            version = new Version(lastRev.getVersion());
+            version.increase();
+        }
+        
+        PartRevision rev = new PartRevision(this,version,pUser);
+        partRevisions.add(rev);
+        return rev;
+    }
     
     public Workspace getWorkspace() {
         return workspace;
@@ -165,6 +212,10 @@ public class PartMaster implements Serializable {
     }
 
 
+    public PartMasterKey getKey() {
+        return new PartMasterKey(getWorkspaceId(),number);
+    }
+        
     public String getDescription() {
         return description;
     }
@@ -175,5 +226,10 @@ public class PartMaster implements Serializable {
 
     public String getWorkspaceId() {
         return workspace == null ? "" : workspace.getId();
+    }
+    
+    @Override
+    public String toString() {
+        return number;
     }
 }
