@@ -47,7 +47,6 @@ define([
         isCreated : function(){
 
             var result = kumo.isNotEmpty(this.getFullName());
-            kumo.debug (this.getShortName()+" created ? "+result);
             return result;
         },
 

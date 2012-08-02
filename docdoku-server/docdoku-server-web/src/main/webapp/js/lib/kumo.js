@@ -37,21 +37,20 @@ var kumo = {
             return value.length <= 0;
 
 
-        if (typeof(value)=='string'){
-          return (value == "");
+        if (typeof(value) == 'string') {
+            return (value == "");
         }
 
-        if (typeof(value)=='object'){
+        if (typeof(value) == 'object') {
             //check if we have an empty object
-            for (var key in value){
-                if (value.hasOwnProperty(key) ){
+            for (var key in value) {
+                if (value.hasOwnProperty(key)) {
                     return false;
                 }
             }
             //we have an empty object
             return true;
         }
-
 
 
         return false;
@@ -95,11 +94,11 @@ var kumo = {
         return false;
     },
     enableAssert:true,
-    devMode : true,
+    devMode:true,
 
-    debug : function(log){
-        if (this.devMode){
-            console.log (log);
+    debug:function (log) {
+        if (this.devMode) {
+            console.log(log);
         }
     },
 
@@ -183,22 +182,22 @@ var kumo = {
         return s.join('');
     },
 
-    getDateStr: function() {
+    getDateStr:function () {
         var temp = new Date();
-        var dateStr =   kumo.padStr(temp.getDate()) + "/" +
-                        kumo.padStr(1 + temp.getMonth()) + "/" +
-                        kumo.padStr(temp.getFullYear()) + " " +
-                        kumo.padStr(temp.getHours()) + ":" +
-                        kumo.padStr(temp.getMinutes()) + ":" +
-                        kumo.padStr(temp.getSeconds());
+        var dateStr = kumo.padStr(temp.getDate()) + "/" +
+            kumo.padStr(1 + temp.getMonth()) + "/" +
+            kumo.padStr(temp.getFullYear()) + " " +
+            kumo.padStr(temp.getHours()) + ":" +
+            kumo.padStr(temp.getMinutes()) + ":" +
+            kumo.padStr(temp.getSeconds());
         return dateStr;
     },
 
-    padStr: function(i) {
+    padStr:function (i) {
         return (i < 10) ? "0" + i : "" + i;
     },
 
-    isEmptyOrUndefined: function(value) {
+    isEmptyOrUndefined:function (value) {
         if (_.isObject(value)) {
             return _.isEmpty(value);
         } else if (_.isString(value)) {
@@ -208,24 +207,36 @@ var kumo = {
         return _.isUndefined(value);
     },
 
-    extractFullHtml : function(jqueryElement){
+    extractFullHtml:function (jqueryElement) {
 
         var html = $('<div>').append($(jqueryElement).clone()).remove().html();
         return html;
+    },
+
+    /**
+     * Apply properties to the object if they are undefined ;
+     * It won't apply if object has property equals to null, or empty string
+     */
+    applyIf:function (object, properties) {
+        for (var prop in properties) {
+            if (typeof object[prop] == 'undefined') {
+                object[prop] = properties[prop];
+            }
+        }
     },
     /**
      * Try a function with optional arguments
      * @param functionRef
      */
-    tryFunction : function(object, functionRef){
-        kumo.debug("args : "+arguments);
-        var args =[];
-        for (var i=2 ; i < arguments.length ; i++){
+    tryFunction:function (object, functionRef) {
+        kumo.debug("args : " + arguments);
+        var args = [];
+        for (var i = 2; i < arguments.length; i++) {
             args.push(arguments[i]);
         }
-        try{
+        try {
             functionRef.apply(object, args);
-        }catch(e){
+        } catch (e) {
             console.error(e)
             //nothing here
         }
@@ -234,8 +245,8 @@ var kumo = {
 };
 
 
-var f = function(i, j){
-    console.log("calcul : "+(i+j));
+var f = function (i, j) {
+    console.log("calcul : " + (i + j));
 }
 kumo.tryFunction(this, f, 2, 3);
 

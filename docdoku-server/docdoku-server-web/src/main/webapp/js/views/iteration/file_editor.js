@@ -10,7 +10,6 @@ define([
         initialize:function () {
 
             kumo.assertNotEmpty(this.options.documentIteration, "No documentIteration set");
-            kumo.debug("cid : "+this.cid+ " ; className :"+this.className);
 
             this.newItems = new AttachedFileCollection();
 
@@ -40,8 +39,6 @@ define([
             }
 
             var shortName = form.upload.value.split(/(\\|\/)/g).pop();
-            kumo.debug("adding file "+shortName);
-
 
             var newFile = new AttachedFile({
                 shortName:shortName,
@@ -129,11 +126,7 @@ define([
             var data = {cid : this.cid};
 
             var html = Mustache.to_html(this.templateString(), data);
-            kumo.debug("rendering : \n"+html);
-            /*this.$el.html(html);
-            widgetAddButton.after(this.$el);
-            widgetAddButton.remove();
-            */
+
             this.setElement(this.widget.getControlsElement());
             this.$el.html(html);
 

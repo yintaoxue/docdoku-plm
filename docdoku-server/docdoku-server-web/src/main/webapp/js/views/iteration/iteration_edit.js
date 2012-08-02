@@ -1,7 +1,7 @@
 define([
     "views/components/modal",
     "views/iteration/file_editor",
-   // "views/document_new/document_new_attributes",
+   // "views/attributes/attributes",
    // "views/document_new/document_new_template_list",
    // "views/document_new/document_new_workflow_list",
     "views/components/editable_list_view",
@@ -10,7 +10,7 @@ define([
 ], function (
     ModalView,
     FileEditor,
-   // DocumentNewAttributesView,
+    //AttributesView,
     //DocumentNewTemplateListView,
     //DocumentNewWorkflowListView,
     EditableListView,
@@ -34,13 +34,7 @@ define([
             this.iteration = this.model.getLastIteration();
 
             var attributes = this.iteration.getAttributes();
-           /* this.attributesView = new EditableListView({
-                model : attributes, // this will be set directly in view.model
-                editable : true, // we will have to look at view.options.editable
-                keyValue : true,
-                keyName : "name",
-                valueName : "value"
-            });*/
+
 
             ModalView.prototype.initialize.apply(this, arguments);
 
@@ -65,17 +59,32 @@ define([
             var html = this.template(data);
             this.$el.html(html);
 
+            //Attributes tab
+            kumo.assertNotEmpty($("#iteration-attributes"), "no tab for attributes");
+          /*  this.attributesView = new AttributesView({
+                el : $("#iteration-attributes")
+            }).render();
+            */
+
 
 
             //File Tab
             kumo.assertNotEmpty($("#iteration-files"), "no tab for files");
-            this.fileEditor = new FileEditor({documentIteration:this.iteration})
-            // adding components
+
+            //defines the view when we create a new File
+            this.fileEditor = new FileEditor({documentIteration:this.iteration});
+
+            //main view
+            var files = this.iteration.getAttachedFiles();
+            var partial = "{{#created}}<a href='{{url}}'>{{shortName}}</a>{{/created}}" +//created : link
+                "{{^created}}{{shortName}}{{/created}}"; //not created : only shortName
+
+
             this.filesView = new  EditableListView({
-                model : this.iteration.getAttachedFiles(), // this will be set directly in view.model
+                model : this.iteration.getAttachedFiles(), // domain objects set directly in view.model
                 editable : true, // we will have to look at view.options.editable
-                keyValue : false,
-                renderer : this.getFileRenderer(),
+                itemPartial :  partial,
+                dataMapper : this.fileDataMapper,//datas needed in partial
                 editor : this.fileEditor,
                 el : $("#iteration-files")
             }).render();
@@ -141,15 +150,10 @@ define([
         },
 
         /**
-         * Returns the link if the fullName exists, or just a text if it does not exist yet on server
+         * Extract datas needed for the partial
          */
-        getFileRenderer : function(){
+        fileDataMapper : function(file){
 
-            var partial = "{{#created}}" +
-                "<a href='{{url}}'>{{shortName}}</a>{{/created}}" +
-                "{{^created}}{{shortName}}{{/created}}";
-
-            var mapper = function(file){
                 return {
                     created : file.isCreated(),
                     url : file.isCreated() ? file.getUrl() : false,
@@ -157,13 +161,6 @@ define([
                     fullName : file.getFullName(),
                     cid : file.cid
                 }
-            }
-
-            return {
-                partial:partial,
-                mapper : mapper
-            };
-
         }
 
     });

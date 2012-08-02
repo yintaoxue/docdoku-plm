@@ -17,8 +17,6 @@
  * You should have received a copy of the GNU General Public License
  * along with DocDoku.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
 package com.docdoku.core.product;
 
 import java.io.Serializable;
@@ -28,6 +26,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -45,17 +46,19 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 @XmlSeeAlso({DateBasedEffectivity.class, SerialNumberBasedEffectivity.class, LotBasedEffectivity.class})
 @Inheritance()
 @Entity
-public abstract class Effectivity implements Serializable{
+public abstract class Effectivity implements Serializable {
 
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private int id;
-
     protected String name;
-    
     private String description;
     
-    @ManyToOne(optional=true, fetch= FetchType.EAGER)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @JoinColumns({
+        @JoinColumn(name = "CONFIGURATIONITEM_ID", referencedColumnName = "ID"),
+        @JoinColumn(name = "CONFIGURATIONITEM_WORKSPACE_ID", referencedColumnName = "WORKSPACE_ID")
+    })
     private ConfigurationItem configurationItem;
     
     /**
@@ -63,13 +66,17 @@ public abstract class Effectivity implements Serializable{
      * However, the case when we need to manage different versions of a part
      * in the same product structure may rarely happen.
      */
-    @ManyToOne(optional=true, fetch= FetchType.EAGER)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
     private PartUsageLink usageLink;
-    
-    
-    
+
     public Effectivity() {
     }
+
+    public int getId() {
+        return id;
+    }
+    
+     
 
     public Effectivity(String pName) {
         name = pName;
@@ -109,7 +116,4 @@ public abstract class Effectivity implements Serializable{
     public void setUsageLink(PartUsageLink usageLink) {
         this.usageLink = usageLink;
     }
-
-    
-    
 }
