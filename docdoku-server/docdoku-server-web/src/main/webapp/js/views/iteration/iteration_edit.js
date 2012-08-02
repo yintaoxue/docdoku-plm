@@ -1,7 +1,7 @@
 define([
     "views/components/modal",
     "views/iteration/file_editor",
-    "views/attributes/attributes",
+   // "views/attributes/attributes",
    // "views/document_new/document_new_template_list",
    // "views/document_new/document_new_workflow_list",
     "views/components/editable_list_view",
@@ -10,7 +10,7 @@ define([
 ], function (
     ModalView,
     FileEditor,
-    AttributesView,
+    //AttributesView,
     //DocumentNewTemplateListView,
     //DocumentNewWorkflowListView,
     EditableListView,
@@ -61,10 +61,10 @@ define([
 
             //Attributes tab
             kumo.assertNotEmpty($("#iteration-attributes"), "no tab for attributes");
-            this.attributesView = new AttributesView({
+          /*  this.attributesView = new AttributesView({
                 el : $("#iteration-attributes")
             }).render();
-
+            */
 
 
 
