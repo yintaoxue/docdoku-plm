@@ -16,9 +16,11 @@ define([
             var type = this.model.get("type");
             this.$el.find("select.type:first").val(type);
         },
+
         removeAction: function () {
             this.model.destroy();
         },
+
         typeChanged: function (evt) {
             var type = $(evt.target).val();
             var oldType = this.model.get("type");

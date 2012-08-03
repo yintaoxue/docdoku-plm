@@ -1,0 +1,22 @@
+<div class="attribute-edit" data-attribute-cid="{{cid}}" data-attribute-id="{{id}}">
+
+    {{^isSelected}}
+    <select class="type">
+        <option value="TEXT">{{_.TEXT}}</option>
+        <option value="BOOLEAN">{{_.BOOLEAN}}</option>
+        <option value="DATE">{{_.DATE}}</option>
+        <option value="NUMBER">{{_.NUMBER}}</option>
+        <option value="URL">{{_.URL}}</option>
+    </select>
+
+    <input type="text" class="input-xlarge attribute-name" placeholder="{{_.NAME}}" value="{{name}}" required/>
+    <input type="text" class="input-xlarge attribute-value" placeholder="{{_.VALUE}}" value="{{value}}" required/>
+    {{/isSelected}}
+
+    {{#isSelected}}
+    <span class="type">{{type}}</span>
+    <span class="attribute-name">{{name}}</span>
+    <span class="attribute-value">{{value}}</span>
+    {{/isSelected}}
+
+</div>

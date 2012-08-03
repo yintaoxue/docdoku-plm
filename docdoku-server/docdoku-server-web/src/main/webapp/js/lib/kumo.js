@@ -44,9 +44,8 @@ var kumo = {
         if (typeof(value) == 'object') {
             //check if we have an empty object
             for (var key in value) {
-                if (value.hasOwnProperty(key)) {
                     return false;
-                }
+
             }
             //we have an empty object
             return true;

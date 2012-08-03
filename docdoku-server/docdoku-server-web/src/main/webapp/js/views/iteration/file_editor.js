@@ -10,8 +10,12 @@ define([
         initialize:function () {
 
             kumo.assertNotEmpty(this.options.documentIteration, "No documentIteration set");
-
             this.newItems = new AttachedFileCollection();
+
+
+            var widget = this.options.widget;
+            kumo.assertNotEmpty(widget, "the widget is not set for the FileEditor "+this.cid);
+            this.setWidget(widget);
 
             //events
             _.bindAll(this);
@@ -46,9 +50,6 @@ define([
             });
             newFile.set("documentIteration", this.options.documentIteration);
 
-
-
-
             this.startUpload(form, newFile);
         },
 
@@ -70,7 +71,7 @@ define([
                 xhr.upload.addEventListener("progress", uploadProgress, false);
                 xhr.addEventListener("load", loaded, false);
 
-                this.on("state:cancel", function(){
+                widget.on("state:cancel", function(){
                     console.log("canceling upload")
                   //  xhr.removeEventListener("progress", uploadProgress, false);
                     xhr.abort();
@@ -106,18 +107,17 @@ define([
 
             function loaded (){
                 console.log("file "+newFile+" loaded");
-                self.trigger("list:added", newFile);
                 finished();
+                widget.trigger("list:added", newFile);
             }
 
             function finished(){
                 console.log("file "+newFile+" finished");
                 progressElement.empty();
                 widget.trigger("status:idle");
+                //widget.off("state:cancel");
 
             }
-
-
 
         },
 
@@ -125,15 +125,10 @@ define([
 
             var data = {cid : this.cid};
 
-            var html = Mustache.to_html(this.templateString(), data);
-
+            var html = Mustache.render(this.templateString(), data);
             this.setElement(this.widget.getControlsElement());
             this.$el.html(html);
-
-           // this.widget.trigger("state:idle");
-
-            //this.$el.on("click")
-
+            this.delegateEvents();
             return this;
 
         },
@@ -141,17 +136,11 @@ define([
 
 
         templateString:function () {
-            //change controls
-            //"<button class='editable-list-adder'>Add item</button>" +
-            //"<button id='editable-list-cancel-editor-"  + this.cid + "' class='editable-list-cancel-editor'>Cancel Add</button>" +
-
-
 
             var str = "<div id='progressVisualization'></div>" +
                 "<form id='form-{{cid}}'  enctype='multipart/form-data' class='list-item'>" +
-                "<input id='input-{{cid}}' name='upload' type='file' class='input-xlarge value editable-list-adder'  />" +
-                "<button id='editable-list-cancel-editor-"  + this.cid + "' class='editable-list-cancel-editor hidden'>Cancel Add</button>" +
-
+                    "<input id='input-{{cid}}' name='upload' type='file' class='input-xlarge value'  />" +
+                    "<button id='editable-list-cancel-editor-"  + this.cid + "' class='editable-list-cancel-editor hidden'>Cancel Add</button>" +
                 "</form>"
             return str;
         },
@@ -164,13 +153,21 @@ define([
 
         setWidget : function(widget){
             this.widget = widget;
-            this.customizeWidget()
+            this.customizeWidget(widget)
         },
 
 
-        customizeWidget : function(){
-            kumo.assertNotEmpty(this.widget, "no Widget assigned");
-            this.widget.on("state:idle", this.render);
+        customizeWidget : function(widget){
+            var self = this;
+            kumo.assertNotEmpty(widget, "no Widget assigned");
+            widget.on("state:idle", function(){
+                self.render();
+            });
+
+            widget.on("state:cancel", function(){
+
+                self.trigger("state:cancel")
+            });
 
         }
 

@@ -1,7 +1,7 @@
 define([
 	"views/attributes/attribute_item",
-	"text!templates/partials/document_new_attribute_list_item.html",
-	"text!templates/document_new/document_new_attribute_list_item_text.html"
+	"text!templates/attributes/attribute_item.html",
+	"text!templates/attributes/attribute_item_text.html"
 ], function (
 	AttributeItemView,
 	partial,

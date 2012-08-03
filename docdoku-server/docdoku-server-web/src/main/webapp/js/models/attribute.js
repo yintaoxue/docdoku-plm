@@ -6,17 +6,21 @@ define([
     iteration
     ) {
 
-
-
     var Attribute = Backbone.Model.extend({
         initialize: function () {
+            var self = this;
             this.className = "Attribute";
 
             //expected : documentIteration
-            kumo.assertNotAny([this.attributes.type, this.attributes.name, this.attributes.value],
-                "an Attribute Model should have type, name and value");
-            kumo.assert(_.include(this.types, this.getType()),
-                "Attribute type : "+this.getType()+" not in "+JSON.stringify(this.types));
+            kumo.assertNotEmpty(this.attributes.type,
+                "an Attribute Model should have type");
+            kumo.assert(
+                _.any(Attribute.types,
+                function(val){
+                    return val == self.getType()
+                }),
+                "Attribute type : "+this.getType()+" not in "+JSON.stringify(Attribute.types)
+            );
 
             _.bindAll(this);
         },
@@ -35,7 +39,8 @@ define([
 
     });
 
-    Attribute.prototype.types = ["NUMBER", "DATE", "BOOLEAN", "TEXT"];
+    Attribute.types = {
+        NUMBER:"NUMBER", DATE : "DATE", BOOLEAN:"BOOLEAN", TEXT:"TEXT"};
 
     return Attribute;
 });

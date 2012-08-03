@@ -1,20 +1,24 @@
 define([
     "views/components/modal",
     "views/iteration/file_editor",
-   // "views/attributes/attributes",
+    "views/iteration/attribute_editor",
+    "views/attributes/attributes",
    // "views/document_new/document_new_template_list",
    // "views/document_new/document_new_workflow_list",
     "views/components/editable_list_view",
     "text!templates/iteration/iteration_new.html",
+    "text!templates/attributes/attribute_item.html",
     "i18n"
 ], function (
     ModalView,
     FileEditor,
-    //AttributesView,
+    AttributeEditor,
+    AttributesView,
     //DocumentNewTemplateListView,
     //DocumentNewWorkflowListView,
     EditableListView,
     template,
+    attributePartial,
     i18n
     ) {
     var IterationEditView = ModalView.extend({
@@ -33,7 +37,7 @@ define([
             //we are fetching the last iteration
             this.iteration = this.model.getLastIteration();
 
-            var attributes = this.iteration.getAttributes();
+
 
 
             ModalView.prototype.initialize.apply(this, arguments);
@@ -44,8 +48,6 @@ define([
         render : function(){
             this.deleteSubViews();
 
-            //var attrView = this.attributesView.render();
-            //var attrHtml = attrView.$el.clone().wrap('<p>').parent().html();
 
             var data = {
                 iteration : this.iteration.toJSON(),
@@ -61,34 +63,41 @@ define([
 
             //Attributes tab
             kumo.assertNotEmpty($("#iteration-attributes"), "no tab for attributes");
-          /*  this.attributesView = new AttributesView({
-                el : $("#iteration-attributes")
+
+            var attributes = this.iteration.getAttributes();
+            var attributeEditor = new AttributeEditor();
+
+            this.attributesView = new AttributesView({
+                model : attributes,
+                editable : true,
+                listName :"Attribute List for "+this.iteration,
+                editor : attributeEditor
             }).render();
-            */
-
-
+            $("#iteration-attributes").append(this.attributesView.$el);
+            attributeEditor.setWidget(this.attributesView);
 
             //File Tab
             kumo.assertNotEmpty($("#iteration-files"), "no tab for files");
-
-            //defines the view when we create a new File
-            this.fileEditor = new FileEditor({documentIteration:this.iteration});
-
             //main view
             var files = this.iteration.getAttachedFiles();
-            var partial = "{{#created}}<a href='{{url}}'>{{shortName}}</a>{{/created}}" +//created : link
+            var filePartial = "{{#created}}<a href='{{url}}'>{{shortName}}</a>{{/created}}" +//created : link
                 "{{^created}}{{shortName}}{{/created}}"; //not created : only shortName
 
 
             this.filesView = new  EditableListView({
                 model : this.iteration.getAttachedFiles(), // domain objects set directly in view.model
                 editable : true, // we will have to look at view.options.editable
-                itemPartial :  partial,
+                itemPartial :  filePartial,
                 dataMapper : this.fileDataMapper,//datas needed in partial
-                editor : this.fileEditor,
-                el : $("#iteration-files")
+                listName : "Attached files for "+this.iteration//,
+                //el : $("#iteration-files")
             }).render();
-
+            $("#iteration-files").append(this.filesView.$el);
+            //defines the view when we create a new File
+            this.fileEditor = new FileEditor({
+                documentIteration:this.iteration,
+                widget : this.filesView
+            });
 
             this.cutomizeRendering();
 
@@ -136,12 +145,12 @@ define([
          */
         cutomizeRendering : function(){
 
-            this.filesView.on("list:selected", function(selectedObject, line){
+            this.filesView.on("list:selected", function(selectedObject, index, line){
                     line.addClass("stroke");
                     line.find("a").addClass("stroke");
             });
 
-            this.filesView.on("list:unselected", function(selectedObject, line){
+            this.filesView.on("list:unselected", function(selectedObject, index, line){
                 line.find(".stroke").removeClass("stroke");
                 line.removeClass("stroke")
             });
@@ -161,7 +170,13 @@ define([
                     fullName : file.getFullName(),
                     cid : file.cid
                 }
+        },
+        attributeDataMapper : function(attribute){
+            return {name:"attr-"+attribute.cid, _:i18n}
         }
+
+
+
 
     });
     return IterationEditView;
