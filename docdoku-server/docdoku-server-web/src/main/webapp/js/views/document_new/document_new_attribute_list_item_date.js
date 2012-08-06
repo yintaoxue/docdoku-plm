@@ -10,6 +10,7 @@ define([
 	template
 ) {
 	var DocumentNewAttributeListItemDateView = DocumentNewAttributeListItemView.extend({
+        pickerSet : false,
 		template: Mustache.compile(template),
 		partials: {
 			document_new_attribute_list_item: document_new_attribute_list_item
@@ -29,9 +30,13 @@ define([
 		},
 		rendered: function () {
 			DocumentNewAttributeListItemView.prototype.rendered.apply(this, arguments);
-			this.$el.find("input.value:first").datepicker({
-				dateFormat: i18n["_DATE_PICKER_DATE_FORMAT"]
-			});
+			if (! this.pickerSet){
+                this.$el.find("input.value:first").datepicker({
+                    dateFormat: i18n["_DATE_PICKER_DATE_FORMAT"]
+                });
+                this.pickerSet = true;
+            }
+
 		},
 		getValue: function (el) {
 			var value = null;
