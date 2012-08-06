@@ -19,6 +19,13 @@ define([
                 "Attribute type : " + this.getType() + " not in " + JSON.stringify(Attribute.types)
             );
 
+            switch (this.getType()){
+                //forcing number
+                case Attribute.types.NUMBER :
+                case Attribute.types.DATE :
+                    this.set("value", parseFloat(this.getValue()));
+            }
+
             //_.bindAll(this);
         },
 
@@ -40,6 +47,9 @@ define([
 
         //from backbone Doc : If the attributes are valid, don't return anything from validate
         validate:function () {
+            if (kumo.any([this.getType(), this.getName(), this.getValue()])) {
+                return i18n.VALIDATION_FAILED_FOR+this.getName();
+            }
             try{
                 var value = this.getValue();
                 var ok = true;
@@ -47,18 +57,22 @@ define([
 
                     case Attribute.types.NUMBER :
                     case Attribute.types.DATE :
+                        value = parseFloat(value);
+                        this.set({value : value}, {silent:true});//fixing missed conversion
                         ok = (_.isNumber(value) && !_.isNaN(value));
                         break;
 
                     case Attribute.types.BOOLEAN :
+                        value = Boolean(value);
+                        this.set({value : value}, {silent:true});//fixing missed conversion
                         ok = (value === true || value === false) && typeof(value) == "boolean";
                         break;
 
                     case Attribute.types.TEXT :
-                        ok = typeof(value) == "string";
-
                     case Attribute.types.URL :
-                        ok = typeof(value) == "string";
+                        ok = typeof(value) == "string" && value !="";
+
+                        break;
                 }
             }catch (e){
                 console.error("Unexpected fail during validation "+e);

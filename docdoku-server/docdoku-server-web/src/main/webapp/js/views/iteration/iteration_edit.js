@@ -2,7 +2,7 @@ define([
     "views/components/modal",
     "views/iteration/file_editor",
     "views/iteration/attribute_editor",
-    "views/attributes/attributes",
+  //  "views/attributes/attributes",
    // "views/document_new/document_new_template_list",
    // "views/document_new/document_new_workflow_list",
     "views/components/editable_list_view",
@@ -13,7 +13,7 @@ define([
     ModalView,
     FileEditor,
     AttributeEditor,
-    AttributesView,
+  //  AttributesView,
     //DocumentNewTemplateListView,
     //DocumentNewWorkflowListView,
     EditableListView,
@@ -37,15 +37,30 @@ define([
             //we are fetching the last iteration
             this.iteration = this.model.getLastIteration();
 
-
-
-
             ModalView.prototype.initialize.apply(this, arguments);
 
+
+        },
+
+        validation : function(){
+            //checking attributes
+            var ok = true;
+            var attributes = this.attributesView.model;
+            attributes.each(function(item){
+               if (! item.isValid()){
+                   ok = false;
+               }
+            });
+            if (!ok){
+                this.getPrimaryButton().attr("disabled", "disabled");
+            }else{
+                this.getPrimaryButton().removeAttr("disabled");
+            }
         },
 
 
         render : function(){
+            var self = this;
             this.deleteSubViews();
 
 
@@ -67,7 +82,7 @@ define([
             var attributes = this.iteration.getAttributes();
             var attributeEditor = new AttributeEditor();
 
-            this.attributesView = new AttributesView({
+            this.attributesView = new EditableListView  ({
                 model : attributes,
                 editable : true,
                 listName :"Attribute List for "+this.iteration,
@@ -75,6 +90,13 @@ define([
             }).render();
             $("#iteration-attributes").append(this.attributesView.$el);
             attributeEditor.setWidget(this.attributesView);
+            _.extend(attributeEditor, Backbone.Events);
+            attributeEditor.on("attributeChanged", function(attribute){
+                self.validation();
+            });
+            this.attributesView.on("list:added", function(attribute){
+                self.validation();
+            });
 
             //File Tab
             kumo.assertNotEmpty($("#iteration-files"), "no tab for files");
@@ -126,23 +148,6 @@ define([
             this.iteration.set({
                 attachedFiles:files
             });
-
-
-
-            /*
-            kumo.debug("cloning :");
-            var first = attributes.at(0)
-
-            kumo.debug(clone);
-
-           /* */
-
-
-
-
-            /*this.iteration.save();
-            */
-
 
             //saving new files : nothing to do : it's already saved
             //deleting unwanted files
@@ -210,8 +215,11 @@ define([
                     cid : file.cid
                 }
         },
-        attributeDataMapper : function(attribute){
-            return {name:"attr-"+attribute.cid, _:i18n}
+
+        getPrimaryButton : function(){
+            var button = this.$el.find("div.modal-footer button.btn-primary");
+            kumo.assertNotEmpty(button, "can't find primary button");
+            return button;
         }
 
 

@@ -60,6 +60,7 @@ define([
                 isSelected:isSelected,
                 row:row
             });
+            attributeView.editor = this;
 
             return attributeView;
         }
@@ -133,12 +134,14 @@ define([
             }, {silent:true});
 
             this.render()
+            this.editor.trigger("attributeChanged",  this.model);
         },
         updateName:function () {
             var attributeName =this.$el.find("input.attribute-name").val();
             this.model.set({
                 name:attributeName
             }, {silent:true});
+            this.editor.trigger("attributeChanged",  this.model);
         },
         updateValue:function (evt) {
 
@@ -176,10 +179,7 @@ define([
                 this.render()
             }
 
-
-
-
-
+            this.editor.trigger("attributeChanged",  this.model);
 
         }
     });
