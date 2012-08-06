@@ -60,6 +60,7 @@ define([
             widget.trigger("state:working");
 
 
+
             //find correct $el
             //$("#item-"+newFile.cid).append("<span id='progress-"+newFile.cid+"'> loading ....</span>");
             var progressElement = $("#progressVisualization");
@@ -76,6 +77,7 @@ define([
                   //  xhr.removeEventListener("progress", uploadProgress, false);
                     xhr.abort();
                     finished();
+                    return false;
                 });
                 //xhr.addEventListener("error", this.error, false);
                 //xhr.addEventListener("abort", this.abort, false);
@@ -123,12 +125,17 @@ define([
 
         render : function(){
 
-            var data = {cid : this.cid};
+            var data = {
+                cid : this.cid,
+                i18n:i18n
+            };
 
             var html = Mustache.render(this.templateString(), data);
             this.setElement(this.widget.getControlsElement());
             this.$el.html(html);
             this.delegateEvents();
+            var cancelButton = this.$el.find("form button");
+            cancelButton.hide();
             return this;
 
         },
@@ -140,7 +147,7 @@ define([
             var str = "<div id='progressVisualization'></div>" +
                 "<form id='form-{{cid}}'  enctype='multipart/form-data' class='list-item'>" +
                     "<input id='input-{{cid}}' name='upload' type='file' class='input-xlarge value'  />" +
-                    "<button id='editable-list-cancel-editor-"  + this.cid + "' class='editable-list-cancel-editor hidden'>Cancel Add</button>" +
+                    "<button id='editable-list-cancel-editor-"  + this.cid + "' class='btn cancel editable-list-cancel-editor'>{{i18n.CANCEL}}</button>" +
                 "</form>"
             return str;
         },
@@ -164,10 +171,20 @@ define([
                 self.render();
             });
 
-            widget.on("state:cancel", function(){
+            widget.on("state:working", function(){
+                var uploadButton =self.$el.find("form input");
+                var cancelButton =self.$el.find("form button");
 
+                uploadButton.hide();
+                cancelButton.show();
+                //cancelButton.removeAttr("visibility");
+            });
+
+            widget.on("state:cancel", function(){
                 self.trigger("state:cancel")
             });
+
+
 
         }
 

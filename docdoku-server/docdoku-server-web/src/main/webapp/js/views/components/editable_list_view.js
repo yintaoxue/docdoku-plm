@@ -1,11 +1,11 @@
 define([
-
-], function () {
+    "i18n"
+], function (i18n) {
     var EditableListView = Backbone.View.extend({
 
         debug:true,
         className:'editable-list',
-       // id:this.cid,
+        // id:this.cid,
 
 
 
@@ -26,7 +26,7 @@ define([
                     if (kumo.isEmpty(this.options.dataMapper)) {
                         console.error("no dataMapper set to the List " + this.listName);
                     }
-                }else{
+                } else {
                     kumo.assertNotEmpty(this.options.editor, "a List must have either a partial, either a Component Editor");
                 }
             }
@@ -80,21 +80,36 @@ define([
 
         //states
         onWorking:function () {
-            if (this.getAddButton()){
+          /*  try {
                 this.getAddButton().attr('disabled', 'disabled');
+            } catch (e) {
+                //no addButton
             }
-            if (this.getCancelButton()){
+
+
+            try {
                 this.getCancelButton().show();
-            }
+            } catch (e) {
+                //no cancelButton
+            }*/
 
 
         },
 
         onIdle:function () {
-            if (this.getAddButton()){
+          /*  try {
                 this.getAddButton().removeAttr('disabled');
+            } catch (e) {
+                //no addButton
             }
-            this.getCancelButton().hide();
+
+            try {
+                this.getCancelButton().hide();
+            } catch (e) {
+                //no cancelButton
+            }*/
+
+
         },
 
         onCancel:function () {
@@ -157,7 +172,8 @@ define([
             var data = {
                 listId:this.cid,
                 items:itemsData,
-                editable:this.options.editable
+                editable:this.options.editable,
+                i18n:i18n
             };
 
             var html = Mustache.render(fullTemplate,
@@ -181,10 +197,10 @@ define([
             var widget = this;
             var editor = this.options.editor;
 
-            var row =0;
+            var row = 0;
             this.components = [];
-            this.model.each(function(item){
-                console.log("row : "+row);
+            this.model.each(function (item) {
+                console.log("row : " + row);
                 var isSelected = widget.selection.include(item);
                 var component = editor.getComponent(widget, item, isSelected, row);
                 widget.components.push(component);
@@ -203,7 +219,7 @@ define([
         listTemplate:function () {
 
             var list =
-                    "{{#items}}\n" +
+                "{{#items}}\n" +
                     "<li id='item-{{cid}}' class='list-item editable-list-item'>\n" +
                     "{{#editable}}<input class='item-selection' type='checkbox' value='{{cid}}' />{{/editable}}\n" + //delete Button
                     "{{>itemPartial}}" + //custom display of the object
@@ -228,8 +244,8 @@ define([
 
         controlBarTemplate:function () {
             var controls = "{{#editable}}<div id='editable-list-controls-{{listId}}'>" +
-                "<button id='editable-list-add-item-{{listId}}' class='editable-list-adder'>Add item</button>" +
-                "<button id='editable-list-cancel-editor-{{listId}}' class='editable-list-cancel-editor'>Cancel Add</button>" +
+                "<button id='editable-list-add-item-{{listId}}' class='btn editable-list-adder'>{{i18n.APPEND}}</button>" +
+                "<button id='editable-list-cancel-editor-{{listId}}' class='btn cancel editable-list-cancel-editor'>{{i18n.CANCEL}}</button>" +
                 "</div>{{/editable}}\n";
             return controls;
         },
@@ -250,11 +266,11 @@ define([
             return this.newItems;
         },
 
-        getUnselectedItems : function(){
+        getUnselectedItems:function () {
             var selection = this.selection;
             var result = new Backbone.Collection();
-            this.model.each(function(item){
-                if (! selection.include(item)){
+            this.model.each(function (item) {
+                if (!selection.include(item)) {
                     result.push(item);
                 }
             });
