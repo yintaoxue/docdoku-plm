@@ -97,7 +97,7 @@ var kumo = {
 
     debug:function (log) {
         if (this.devMode) {
-            console.log(log);
+            console.dir(log);
         }
     },
 
@@ -130,37 +130,7 @@ var kumo = {
     },
 
 
-    enableActionState:function (object) {
-        object.actionRunning = "Une action est en cours. Veuillez l'annuler.";
-        var States = {
-            IDLE:0,
-            ACTION:1
-        };
 
-        object.state = States.IDLE;
-
-        object.setAction = function () {
-            if (object.state != States.IDLE) {
-                console.log(object.actionRunning);
-                return false;
-            } else {
-                object.state = States.ACTION;
-                return true;
-            }
-        };
-        object.clearAction = function () {
-            kumo.assert(object.state != States.IDLE, "state is already IDLE");
-            object.state = States.IDLE;
-        }
-
-        object.checkClear = function () {
-            if (object.state == States.IDLE) {
-                return true;
-            } else {
-                return false;
-            }
-        };
-    },
 
     createUuid:function () {
         var s = [], itoh = '0123456789ABCDEF';
@@ -196,15 +166,7 @@ var kumo = {
         return (i < 10) ? "0" + i : "" + i;
     },
 
-    isEmptyOrUndefined:function (value) {
-        if (_.isObject(value)) {
-            return _.isEmpty(value);
-        } else if (_.isString(value)) {
-            return value == "";
-        }
 
-        return _.isUndefined(value);
-    },
 
     extractFullHtml:function (jqueryElement) {
 

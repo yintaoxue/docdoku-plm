@@ -11,7 +11,7 @@ define([
             //expected : documentIteration
             kumo.assertNotEmpty(this.get("created"), "created attribute not set at AttachedFile creation");
 
-            _.bindAll(this);
+            //_.bindAll(this);
         },
 
         getDocumentIteration : function(){
@@ -26,15 +26,18 @@ define([
             return this.get("shortName");
         },
 
+        //used to delete a file
         url : function(){
             return this.getDocumentIteration().url()+"/files/"+this.getShortName();
         },
 
-        //TODO : change to getUploadUrl
+        //Url used for downloading (it's the same servlet as upload)
         getUrl : function(){
             return this.getDocumentIteration().getUploadUrl(this.getShortName());
         },
 
+
+        //TODO check if delete
         fileUploadUrl: function () {
             var baseUrl = this.getDocumentIteration().getUrl();
             return baseUrl +"/files/"+this.getShortName();

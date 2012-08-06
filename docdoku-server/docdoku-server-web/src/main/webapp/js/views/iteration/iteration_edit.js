@@ -105,6 +105,45 @@ define([
         },
 
         primaryAction : function(){
+
+            //saving new attributes
+            var attributes = this.attributesView.getUnselectedItems();
+            kumo.debug("keeping those : ");
+            kumo.debug(attributes);
+            this.iteration.set({
+                instanceAttributes:attributes
+            })
+
+            //There is a parsing problem at saving time
+            var files = this.iteration.get("attachedFiles");
+            this.iteration.set({
+                attachedFiles:null
+            });
+            var clone =  this.iteration.clone();
+            kumo.debug("cloning ok");
+            this.iteration.save();
+            //tracking back files
+            this.iteration.set({
+                attachedFiles:files
+            });
+
+
+
+            /*
+            kumo.debug("cloning :");
+            var first = attributes.at(0)
+
+            kumo.debug(clone);
+
+           /* */
+
+
+
+
+            /*this.iteration.save();
+            */
+
+
             //saving new files : nothing to do : it's already saved
             //deleting unwanted files
             var filesToDelete =this.filesView.selection;

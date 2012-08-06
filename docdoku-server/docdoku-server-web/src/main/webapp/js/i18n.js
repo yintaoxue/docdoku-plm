@@ -70,6 +70,7 @@ define(function () {
 		"WORKFLOWS":					"Workflows",
 		"WORKFLOW":						"Workflow",
 		"WORKSPACES":					"Workspaces",
+        "VALIDATION_FAILED_FOR":        "Validation échouée pour "
 	};
 	return i18n;
 });

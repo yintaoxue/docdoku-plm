@@ -14,7 +14,7 @@ define([
 		initialize: function () {
             var self = this;
             this.className = "DocumentIteration";
-			_.bindAll(this);
+			//_.bindAll(this);
 
             var attributes = new AttributeCollection(this.get("instanceAttributes"));
 
@@ -31,12 +31,14 @@ define([
             this.set("instanceAttributes", attributes);
             this.set("attachedFiles",  attachedFiles);
 
+            var uploadUrl = this.getUploadUrl();
             attachedFiles.forEach(function(file){
-               file.set("documentIteration", self);
+               file.set("uploadUrl", uploadUrl);
+                file.set("documentIteration", self);
             });
 
             attributes.forEach(function(attr){
-                attr.set("documentIteration", self);
+              //  attr.set("documentIteration", self);
             });
 
             //For the moment, DocumentIteration is built BEFORE the document
@@ -98,7 +100,7 @@ define([
          * @returns string
          */
         getUploadUrl: function (shortName) {
-            var doc = this.collection.document;
+           // var doc = this.collection.document;
 
             return "/files/"
                 + this.getWorkspace()

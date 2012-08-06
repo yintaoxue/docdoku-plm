@@ -69,8 +69,16 @@ define([
 
         events:{
             "change .type":"typeChanged",
-            "change .name":"updateName",
-            "change .value":"updateValue"
+            "change .attribute-name":"updateName",
+         //   "keypress .attribute-name":"updateName",
+            "change .attribute-value":"updateValue",
+            "keypress .attribute-value":"updateValue"
+        },
+
+        initialize : function(){
+          this.model.on("error", function(item, message){
+                console.error ("item "+item+" not valid");
+          });
         },
 
         render:function () {
@@ -87,17 +95,29 @@ define([
             var isSelected = this.options.isSelected;
             var type = attribute.get("type");
 
+            var displayedValue = attribute.get("value");
+
+            if (type == Attribute.types.DATE){
+                displayedValue = parseInt(displayedValue);
+                displayedValue = $.datepicker.formatDate(
+                    i18n["_DATE_PICKER_DATE_FORMAT"],
+                    new Date(displayedValue)
+                );
+            }
+
             var result =  {
                 cid:attribute.cid,
                 id:attribute.id,
                 type:type,
+                typeText : i18n[type],
                 name:attribute.get("name"),
-                value:attribute.get("value"),
+                value:displayedValue,
                 _:i18n,
                 isText:type == Attribute.types.TEXT,
                 isBoolean:type == Attribute.types.BOOLEAN,
                 isNumber:type == Attribute.types.NUMBER,
                 isDate:type == Attribute.types.DATE,
+                isUrl:type == Attribute.types.URL,
                 isSelected:isSelected
             }
                 return result;
@@ -106,23 +126,61 @@ define([
         typeChanged:function (evt) {
             var type = $(evt.target).val();
             console.log("changed model type to" + type);
+            var defaultValue = type == Attribute.types.BOOLEAN ? false : "";
             this.model.set({
                 type:type,
-                value:"" // TODO: Validate and convert if possible between types
-            });
+                value : defaultValue
+            }, {silent:true});
+
             this.render()
         },
         updateName:function () {
             var attributeName =this.$el.find("input.attribute-name").val();
             this.model.set({
                 name:attributeName
-            });
+            }, {silent:true});
         },
-        updateValue:function () {
+        updateValue:function (evt) {
+
             var attributeValue = this.$el.find("input.attribute-value").val();
+
+            if (this.model.getType() == Attribute.types.NUMBER && kumo.isNotEmpty(attributeValue)){
+                attributeValue = kumo.replaceAll(attributeValue, "\\,", ".");
+                this.$el.find("input.attribute-value").val(attributeValue);
+                attributeValue = parseFloat(attributeValue);
+            }
+
+            if (this.model.getType() == Attribute.types.BOOLEAN ){
+                attributeValue =  this.$el.find("input.attribute-value").is(":checked");
+            }
+
+            if (this.model.getType() == Attribute.types.DATE){
+              /*  attributeValue = $.datepicker.formatDate(
+                    i18n["_DATE_PICKER_DATE_FORMAT"],
+                    new Date(attributeValue)
+                );*/
+
+                attributeValue = $.datepicker.parseDate(
+                    i18n["_DATE_PICKER_DATE_FORMAT"],
+                    attributeValue
+                ).getTime();
+
+                kumo.debug("date : "+attributeValue);
+            }
+
             this.model.set({
                 value:attributeValue
-            });
+            }, {silent:true});
+
+            if (this.model.getType() == Attribute.types.BOOLEAN ){
+                this.render()
+            }
+
+
+
+
+
+
         }
     });
 

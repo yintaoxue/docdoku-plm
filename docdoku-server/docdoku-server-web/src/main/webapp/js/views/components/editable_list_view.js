@@ -91,7 +91,9 @@ define([
         },
 
         onIdle:function () {
-            this.getAddButton().removeAttr('disabled');
+            if (this.getAddButton()){
+                this.getAddButton().removeAttr('disabled');
+            }
             this.getCancelButton().hide();
         },
 
@@ -246,6 +248,17 @@ define([
         getNewItems:function () {
             //kumo.assert(this.options.editable, "Can't get new items if not editable");
             return this.newItems;
+        },
+
+        getUnselectedItems : function(){
+            var selection = this.selection;
+            var result = new Backbone.Collection();
+            this.model.each(function(item){
+                if (! selection.include(item)){
+                    result.push(item);
+                }
+            });
+            return result;
         },
 
 
