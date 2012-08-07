@@ -1,7 +1,3 @@
-function debug(str){
-    console.log("DEBUG >> "+str);
-}
-
 define([
 	"router",
 	"models/workspace",

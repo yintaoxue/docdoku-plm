@@ -1,6 +1,7 @@
 .DS_Store
 .idea
 *.iml
+genfiles.properties
 rebel.xml
 private.properties
 docdoku-server/docdoku-server-ear/target

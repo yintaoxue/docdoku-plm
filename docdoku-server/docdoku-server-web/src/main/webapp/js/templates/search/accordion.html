@@ -1,0 +1,86 @@
+<div class="accordion-group">
+    <div class="accordion-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-search" href="#collapseGeneral">
+            Général
+        </a>
+    </div>
+    <div id="collapseGeneral" class="accordion-body collapse" style="height: 0px; ">
+        <div class="accordion-inner">
+            <form id="search-general">
+                <div>
+                    <label>Référence</label><input type="text">
+                </div>
+                <div>
+                    <label>Titre</label> <input type="text">
+                </div>
+                <div>
+                    <label>Type</label>
+                    <select>
+                        {{#templates}}
+                        <option value="{{.}}">{{.}}</option>
+                        {{/templates}}
+                    </select>
+                </div>
+                <div>
+                    <label>Version</label><input type="text" class="version">
+                </div>
+                <div>
+                    <label>Auteurs</label>
+                    <select>
+                        {{#authors}}
+                        <option value="{{.}}">{{.}}</option>
+                        {{/authors}}
+                    </select>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<div class="accordion-group">
+    <div class="accordion-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-search" href="#collapseAttributes">
+            Attributes et Modèle
+        </a>
+    </div>
+    <div id="collapseAttributes" class="accordion-body collapse" style="height: 0px; ">
+        <div class="accordion-inner">
+            <select class="type">
+                <option value="TEXT">{{_.TEXT}}</option>
+                <option value="BOOLEAN">{{_.BOOLEAN}}</option>
+                <option value="DATE">{{_.DATE}}</option>
+                <option value="NUMBER">{{_.NUMBER}}</option>
+                <option value="URL">{{_.URL}}</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div class="accordion-group">
+    <div class="accordion-heading">
+        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion-search" href="#collapseAdvanced">
+            Recherche Avancée
+        </a>
+    </div>
+    <div id="collapseAdvanced" class="accordion-body collapse" style="height: 0px; ">
+        <div class="accordion-inner">
+            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf
+            moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod.
+            Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda
+            shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea
+            proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim
+            aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+        </div>
+    </div>
+</div>
+<section>
+    <header>Résultat</header>
+    <div>
+        <ul>
+            <li><input type="checkbox"> One</li>
+            <li><input type="checkbox" checked="checked">Two</li>
+        </ul>
+    </div>
+    <footer>
+        <button class="btn btn-primary">Sélectionner</button>
+    </footer>
+</section>

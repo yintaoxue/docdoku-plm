@@ -95,6 +95,11 @@ var kumo = {
     enableAssert:true,
     devMode:true,
 
+    log : function (log) {
+        if (this.devMode) {
+            console.log(log);
+        }
+    },
     debug:function (log) {
         if (this.devMode) {
             console.dir(log);

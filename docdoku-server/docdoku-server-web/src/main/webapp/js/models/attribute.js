@@ -1,14 +1,12 @@
 define([
-    "i18n",
-    "models/document_iteration"
-], function (i18n, iteration) {
+    "i18n"
+], function (i18n) {
 
     var Attribute = Backbone.Model.extend({
         initialize:function () {
             var self = this;
             this.className = "Attribute";
 
-            //expected : documentIteration
             kumo.assertNotEmpty(this.attributes.type,
                 "an Attribute Model should have type");
             kumo.assert(
@@ -26,7 +24,6 @@ define([
                     this.set("value", parseFloat(this.getValue()));
             }
 
-            //_.bindAll(this);
         },
 
         getType:function () {
