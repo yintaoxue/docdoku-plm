@@ -19,6 +19,7 @@ define([
         initialize: function () {
             ContentView.prototype.initialize.apply(this, arguments);
             this.events["submit form"] = "primaryAction";
+            this.initWorkflowEditor();
         },
         primaryAction: function () {
             this.nameInput = this.$el.find("input.name").first();
@@ -46,6 +47,10 @@ define([
             } else {
                 console.error(error);
             }
+        },
+
+        initWorkflowEditor: function(){
+            
         }
     });
     return WorkflowContentNewView;
