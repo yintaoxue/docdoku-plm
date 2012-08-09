@@ -5,11 +5,12 @@ define([
 	var Template = Backbone.Model.extend({
 
         defaults : {
-            templateAttributes : new TemplateAttributeCollection()
+            attributeTemplates : new TemplateAttributeCollection()
         },
 
         initialize:function(){
             this.className = "Template";
+            kumo.assertNotEmpty(this.get("documentType"), "A template must have a documentType")
         }
     });
 	return Template;

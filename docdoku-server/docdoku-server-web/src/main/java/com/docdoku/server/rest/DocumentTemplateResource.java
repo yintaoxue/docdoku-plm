@@ -27,9 +27,9 @@ import com.docdoku.core.services.IDocumentManagerLocal;
 import com.docdoku.server.rest.dto.DocumentMasterTemplateDTO;
 import com.docdoku.server.rest.dto.DocumentTemplateCreationDTO;
 import com.docdoku.server.rest.dto.InstanceAttributeTemplateDTO;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import org.dozer.DozerBeanMapperSingletonWrapper;
+import org.dozer.Mapper;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
@@ -37,8 +37,9 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import org.dozer.DozerBeanMapperSingletonWrapper;
-import org.dozer.Mapper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -55,11 +56,16 @@ public class DocumentTemplateResource {
     private Mapper mapper;
 
     public DocumentTemplateResource() {
+        mapper = DozerBeanMapperSingletonWrapper.getInstance();
     }
 
     @PostConstruct
     public void init() {
         mapper = DozerBeanMapperSingletonWrapper.getInstance();
+    }
+
+    public void setDocumentService(IDocumentManagerLocal documentService) {
+        this.documentService = documentService;
     }
 
     @GET

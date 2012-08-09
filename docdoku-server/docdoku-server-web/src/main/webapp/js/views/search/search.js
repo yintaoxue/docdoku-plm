@@ -15,21 +15,20 @@ define([
         },
 
         initialize:function () {
-            kumo.assertNotEmpty(this.options.workspaceId, "the search component needs the workspaceId");
+            kumo.assertNotEmpty(this.options.workspace, "the search component needs the workspaceId");
             var self = this;
             this.model = new SearchModel();
             this.model.on("change", function () {
                 kumo.debug(self.model);
             });
-            this.workspaceData = new WorkspaceData({workspaceId:this.options.workspaceId})//.fetch();
         },
 
         render:function () {
 
             var html = Mustache.render(accordionTemplate, {
-                templates:this.workspaceData.get("templates"),
-                authors:this.workspaceData.get("authors"),
-                tags:this.workspaceData.get("tags")
+                templates:this.workspace.get("templates"),
+                users : this.workspace.get("users"),
+                tags:this.workspace.get("tags")
             });
             this.$el.html(html);
             return this;

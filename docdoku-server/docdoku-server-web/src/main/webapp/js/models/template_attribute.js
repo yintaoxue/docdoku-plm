@@ -1,6 +1,6 @@
 define([
     "i18n",
-    "models/Attribute"
+    "models/attribute"
 ], function (i18n, Attribute) {
 
     var TemplateAttribute = Backbone.Model.extend({
@@ -8,20 +8,21 @@ define([
             var self = this;
             this.className = "TemplateAttribute";
 
-            kumo.assertNotEmpty(this.attributes.type,
-                "an TemplateAttribute Model should have type");
-            kumo.assert(
+            kumo.assertNotEmpty(this.attributes.attributeType,
+                "an TemplateAttribute Model should have attributeType");
+            if (kumo.devMode)
+                kumo.assert(
                 _.any(Attribute.types,
                     function (val) {
-                        return val == self.getType()
+                        return val == self.getAttributeType()
                     }),
-                "TemplateAttribute type : " + this.getType() + " not in " + JSON.stringify(Attribute.types)
+                "TemplateAttribute type : " + this.getAttributeType() + " not in " + JSON.stringify(Attribute.types)
             );
 
         },
 
-        getType:function () {
-            return this.get("type");
+        getAttributeType:function () {
+            return this.get("attributeType");
         },
 
         getName:function () {
@@ -29,13 +30,13 @@ define([
         },
 
         toString:function () {
-            return this.getType() + ":" + this.getName();
+            return this.getAttributeType() + ":" + this.getName();
         },
 
         //from backbone Doc : If the attributes are valid, don't return anything from validate
         validate:function () {
-            if (kumo.any([this.getType(), this.getName()])) {
-                return i18n.VALIDATION_FAILED_FOR+this.getType()+":"+this.getName();
+            if (kumo.any([this.getAttributeType(), this.getName()])) {
+                return i18n.VALIDATION_FAILED_FOR+this.getAttributeType()+":"+this.getName();
             }
         }
 

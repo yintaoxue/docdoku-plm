@@ -100,9 +100,18 @@ var kumo = {
             console.log(log);
         }
     },
-    debug:function (log) {
+
+    debug:function (object, logMessage) {
         if (this.devMode) {
-            console.dir(log);
+            if (kumo.isNotEmpty(logMessage)){
+                console.log (logMessage+" : ");
+            }
+            if (typeof (object) == 'object'){
+                console.dir(object);
+            }else{
+                console.log(" >> "+object);
+            }
+
         }
     },
 

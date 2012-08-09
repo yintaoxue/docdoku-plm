@@ -73,6 +73,7 @@ define([
 				idGenerated: $("#form-" + this.cid + " .id-generated")
 					.attr("checked") ? true : false,
 				attributeTemplates: this.attributesView.collection.toJSON()
+                //TODO issue #35 : attributeTemplates should be templateAttributes
 			}, {
 				success: this.success,
 				error: this.error
