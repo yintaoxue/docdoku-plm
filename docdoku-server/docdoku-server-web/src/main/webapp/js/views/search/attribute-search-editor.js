@@ -30,7 +30,7 @@ define([
                     name:"",
                     value:""
                 });
-                widget.trigger("list:added", newAttribute);
+                widget.addItem(newAttribute);
             });
 
 

@@ -24,7 +24,7 @@ define([
                 searchComponent.enableAutocomplete(); // we needed to add the input to the DOM before calling jQueryUI
                 searchComponent.on("itemSelected", function(iteration){
                     kumo.assert(iteration.className == 'DocumentIteration', "the selected object should be a DocumentIteration");
-                    widget.trigger("list:added", iteration);//re-render the list, so add the iteration & remove the autocomplete
+                    widget.addItem(iteration);//re-render the list, so add the iteration & remove the autocomplete
                 });
             });
 

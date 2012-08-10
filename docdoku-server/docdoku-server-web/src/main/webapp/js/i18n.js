@@ -71,7 +71,14 @@ define(function () {
 		"WORKFLOWS":					"Workflows",
 		"WORKFLOW":						"Workflow",
 		"WORKSPACES":					"Workspaces",
-        "VALIDATION_FAILED_FOR":        "Validation échouée pour "
+        "VALIDATION_FAILED_FOR":        "Validation échouée pour ",
+
+        errors : {
+            OBJECT_ALREADY_IN_LIST  :function(item){
+                "L'objet "+item+" est déjà dans la liste";
+            }
+
+        }
 	};
 	return i18n;
 });

@@ -85,11 +85,11 @@ define([
             attributeEditor.setWidget(this.attributesView);
             _.extend(attributeEditor, Backbone.Events);
 
-            //When attribute changes, there may be unvalid state
+            //When attribute changes, there may be invalid state
             attributeEditor.on("attributeChanged", function(attribute){
                 self.validation();
             });
-            this.attributesView.on("list:added", function(attribute){
+            this.attributesView.on("list:modelChanged", function(attribute){
                 self.validation();
             });
 

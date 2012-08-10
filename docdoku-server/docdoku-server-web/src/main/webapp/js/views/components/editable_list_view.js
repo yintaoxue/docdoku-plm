@@ -10,18 +10,14 @@ define([
 
         initialize:function () {
             var self = this;
-            //this.$el.addClass('editable-list');
-            //Check validity
 
             if (kumo.devMode) {
                 if (kumo.isEmpty(this.options.listName)) {
                     console.log("no listName set ; please set it for easier debug")
                 }
-
             }
             if (kumo.enableAssert) {
-                kumo.assert(_.isArray(this.getModels()), "EditableListView.model is not an array. There will be bugs");
-
+                kumo.assert(this.model instanceof Backbone.Collection, "EditableListView.model is not a Backbone.Collection. There will be bugs");
 
                 kumo.assertNotEmpty(this.options.editor, "A listView must have a View editor with editor.getComponent(widget, item, isSelected, row) method ");
                 if (kumo.isNotEmpty(this.options.editor)) {
@@ -29,18 +25,13 @@ define([
                         "an editor must have a getComponent(widget, item, isSelected, row) method to render the item"
                     )
                 }
-
-                //checking each object is a Model with an cid
-                _.each(this.getModels(), function (item) {
-                    kumo.assert(kumo.isNotEmpty(item.cid), "items in the list model must have a cid");
-                });
             }
 
             //initialize :
             this.$el.attr("data-list-id", this.cid);
 
             //events
-            this.on("list:added", this.onItemAdded);
+            this.on("list:modelChanged", this.onModelChanged);
 
             /**
              * Also declaring for other objects :
@@ -50,6 +41,7 @@ define([
              * list:addItem ->
              * list:selected -> selectedObject, li element : a component has been selected
              * list:unselected -> unselectedObject, li element : a component has been unselected
+             * list:error -> message : when something goes wrong
              * component:rendered : after component is rendered, before state:idle
              */
 
@@ -110,6 +102,7 @@ define([
             });
 
             var data = {
+                listId:this.cid,
                 items:itemsData,
                 editable:this.options.editable===false ? false : true, //by default it's editable
                 i18n:i18n
@@ -151,12 +144,25 @@ define([
             return template;
         },
 
+        addItem : function(item){
 
-        //TODO : not correctly used : the this.model.add(item); should be done in this.addItem() wich would call list:modelChanged
-        onItemAdded:function (item) {
+            if (! this.model.include(item)){
+                this.model.add(item);
+                this.newItems.add(item);
+                this.trigger ("list:modelChanged", item);
+            }else{
+                this.trigger ("list:error", i18n.errors.OBJECT_ALREADY_IN_LIST(item));
+            }
+        },
 
-            this.model.add(item);
-            this.getNewItems().add(item); // later list is disabled
+        removeItem : function(item){
+            this.model.remove(item);
+            this.newItems.remove(item);
+            this.trigger ("list:modelChanged", item);
+        },
+
+
+        onModelChanged:function (item) {
             this.render();
             this.trigger("state:idle");
 

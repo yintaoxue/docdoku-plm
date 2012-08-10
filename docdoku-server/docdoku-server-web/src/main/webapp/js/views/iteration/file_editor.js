@@ -112,7 +112,7 @@ define([
             function loaded (){
                 console.log("file "+newFile+" loaded");
                 finished();
-                widget.trigger("list:added", newFile);
+                widget.addItem(newFile);
             }
 
             function finished(){
