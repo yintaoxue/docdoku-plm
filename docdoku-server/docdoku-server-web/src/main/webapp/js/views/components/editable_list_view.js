@@ -243,7 +243,7 @@ define([
         },
 
         controlBarTemplate:function () {
-            var controls = "{{#editable}}<div id='editable-list-controls-{{listId}}'>" +
+            var controls = "{{#editable}}<div id='editable-list-controls-{{listId}}' class='editable-list-controls'>" +
                 "<button id='editable-list-add-item-{{listId}}' class='btn editable-list-adder'>{{i18n.APPEND}}</button>" +
                 "<button id='editable-list-cancel-editor-{{listId}}' class='btn cancel editable-list-cancel-editor'>{{i18n.CANCEL}}</button>" +
                 "</div>{{/editable}}\n";
@@ -304,7 +304,30 @@ define([
             var button = this.$el.find("button.editable-list-cancel-editor");
             kumo.assertNotEmpty(button, "Can't find cancel Button");
             return button;
+        },
+
+        enableAddButton : function(enable){
+            var button = this.$el.find(".editable-list-adder");
+            if (kumo.isNotEmpty(button)){
+                if (enable===false){
+                    button.attr('disabled', 'disabled');
+                }else{
+                    button.removeAttr('disabled')
+                }
+            }
+        },
+
+        displayCancelButton : function(show){
+            var button = this.$el.find("button.editable-list-cancel-editor");
+            if (kumo.isNotEmpty(button)){
+                if (show===false){
+                    button.hide()
+                }else{
+                    button.show();
+                }
+            }
         }
+
 
     });
     return EditableListView;

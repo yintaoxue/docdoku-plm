@@ -38,13 +38,15 @@ define([
 
 
             widget.on("list:selected", function (item, index, element) {
-                console.log ("index : "+index);
+                kumo.assert(element.is("li"), "the element should be a li line");
+                element.addClass("stroke");
                 var component = widget.components[index];
                 component.options.isSelected = true;
                 component.render();
             })
             widget.on("list:unselected", function (item, index, element) {
-                console.log ("index : "+index);
+                kumo.assert(element.is("li"), "the element should be a li line");
+                element.removeClass("stroke");
                 var component = widget.components[index];
                 component.options.isSelected = false;
                 component.render();

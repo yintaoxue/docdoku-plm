@@ -7,8 +7,6 @@ div.attribute-edit{
         width: @leftWidth;
     }
 
-
-
     input{
         width :  @inputWidth;
 
@@ -25,11 +23,14 @@ div.attribute-edit{
          color : red;
 
          div.type{
+            text-decoration: line-through;
+            margin-left: 10px;
             width: @leftWidth;
          }
-         div{
+         div.attribute-name, div.attribute-value{
             text-decoration: line-through;
-            width: @inputWidth;
+            margin-left: 10px;
+            width: @inputWidth+10;
          }
 
     }
