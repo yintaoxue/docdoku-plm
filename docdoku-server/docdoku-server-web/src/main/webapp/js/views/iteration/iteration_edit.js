@@ -84,12 +84,16 @@ define([
             $("#iteration-attributes").append(this.attributesView.$el);
             attributeEditor.setWidget(this.attributesView);
             _.extend(attributeEditor, Backbone.Events);
+
+            //When attribute changes, there may be unvalid state
             attributeEditor.on("attributeChanged", function(attribute){
                 self.validation();
             });
             this.attributesView.on("list:added", function(attribute){
                 self.validation();
             });
+
+
 
             //File Tab
             kumo.assertNotEmpty($("#iteration-files"), "no tab for files");
@@ -99,21 +103,25 @@ define([
                 "{{^created}}{{shortName}}{{/created}}"; //not created : only shortName
 
 
+            this.fileEditor = new FileEditor({
+                documentIteration:this.iteration/*,
+                widget : this.filesView*/
+            });
+
             this.filesView = new  EditableListView({
                 model : this.iteration.getAttachedFiles(), // domain objects set directly in view.model
                 editable : true, // we will have to look at view.options.editable
-                itemPartial :  filePartial,
-                dataMapper : this.fileDataMapper,//datas needed in partial
+               // itemPartial :  filePartial,
+                //dataMapper : this.fileDataMapper,//datas needed in partial
                 listName : "Attached files for "+this.iteration//,
                 //el : $("#iteration-files")
+                ,editor : this.fileEditor
             }).render();
+            this.fileEditor.setWidget(this.filesView);
             $("#iteration-files").append(this.filesView.$el);
             //defines the view when we create a new File
-            this.fileEditor = new FileEditor({
-                documentIteration:this.iteration,
-                widget : this.filesView
-            });
-            this.cutomizeRendering();//TODO this should be done is the file editor
+
+            this.cutomizeRendering();//TODO this should be done is the file editor and this.fileEditor-> var fileEditor
 
             //Linked Documents
             kumo.assertNotEmpty($("#iteration-links"), "no tab for document links");

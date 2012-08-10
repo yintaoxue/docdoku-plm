@@ -1,15 +1,11 @@
 define([
-    "i18n"
-], function (i18n) {
+    "i18n",
+    "text!templates/components/editable-list-view.html"
+], function (i18n, template) {
     var EditableListView = Backbone.View.extend({
 
         debug:true,
         className:'editable-list',
-        // id:this.cid,
-
-
-
-
         tagName:'ul',
 
         initialize:function () {
@@ -22,18 +18,12 @@ define([
                     console.log("no listName set ; please set it for easier debug")
                 }
 
-                if (kumo.isNotEmpty(this.options.itemPartial)) {
-                    if (kumo.isEmpty(this.options.dataMapper)) {
-                        console.error("no dataMapper set to the List " + this.listName);
-                    }
-                } else {
-                    kumo.assertNotEmpty(this.options.editor, "a List must have either a partial, either a Component Editor");
-                }
             }
             if (kumo.enableAssert) {
                 kumo.assert(_.isArray(this.getModels()), "EditableListView.model is not an array. There will be bugs");
 
 
+                kumo.assertNotEmpty(this.options.editor, "A listView must have a View editor with editor.getComponent(widget, item, isSelected, row) method ");
                 if (kumo.isNotEmpty(this.options.editor)) {
                     kumo.assertNotEmpty(this.options.editor.getComponent,
                         "an editor must have a getComponent(widget, item, isSelected, row) method to render the item"
@@ -46,24 +36,24 @@ define([
                 });
             }
 
-
             //initialize :
+            this.$el.attr("data-list-id", this.cid);
 
             //events
-            this.on("state:working", this.onWorking);
-            this.on("state:idle", this.onIdle);
-            this.on("state:cancel", this.onCancel);
             this.on("list:added", this.onItemAdded);
 
             /**
              * Also declaring for other objects :
-             * list:addItem -> the ul element
-             * list:selected -> selectedObject, li element
-             * list:unselected -> unselectedObject, li element
+             * state:idle : waiting for a user action
+             * state:cancel : cancelButton has been clicked
+             * state:working : addButton has been clicked, or other long action
+             * list:addItem ->
+             * list:selected -> selectedObject, li element : a component has been selected
+             * list:unselected -> unselectedObject, li element : a component has been unselected
+             * component:rendered : after component is rendered, before state:idle
              */
 
-
-                //state lists
+            //state lists
             this.components = []; // Warning : Backbone Collections takes only Models object.
             this.selection = new Backbone.Collection();
             this.newItems = new Backbone.Collection();
@@ -78,43 +68,6 @@ define([
         },
 
 
-        //states
-        onWorking:function () {
-          /*  try {
-                this.getAddButton().attr('disabled', 'disabled');
-            } catch (e) {
-                //no addButton
-            }
-
-
-            try {
-                this.getCancelButton().show();
-            } catch (e) {
-                //no cancelButton
-            }*/
-
-
-        },
-
-        onIdle:function () {
-          /*  try {
-                this.getAddButton().removeAttr('disabled');
-            } catch (e) {
-                //no addButton
-            }
-
-            try {
-                this.getCancelButton().hide();
-            } catch (e) {
-                //no cancelButton
-            }*/
-
-
-        },
-
-        onCancel:function () {
-            this.onIdle();
-        },
 
         getModels:function () {
             return this.model.models;
@@ -122,11 +75,10 @@ define([
 
         bindAddItem:function () {
             this.trigger("state:working");
-            this.trigger("list:addItem", this.getCreationEditorPlace());
+            this.trigger("list:addItem");
         },
 
         bindCancelButton:function () {
-            //this.getCreationEditorPlace().empty();
             this.trigger("state:cancel");
         },
 
@@ -151,35 +103,20 @@ define([
 
         render:function () {
 
-            var itemPartial, itemsData;
-            if (this.options.itemPartial) {
-                itemPartial = this.options.itemPartial
-                itemsData = this.model.map(this.options.dataMapper);//Extract data from the item collection
-            } else if (this.options.editor) {
-                itemPartial = "<div class='item-component' data-cid='{{cid}}'></div>";
-                itemsData = this.model.map(function (item) {
-                    return {
-                        cid:item.cid
-                    }
-                }); // returns only cid
-
-            } else {
-                console.error("A list must render either item partials, or item components");
-            }
-
-            var fullTemplate = this.fullTemplate();
+            var itemsData = this.model.map(function (item) {
+                return {
+                    cid:item.cid
+                }
+            });
 
             var data = {
-                listId:this.cid,
                 items:itemsData,
-                editable:this.options.editable,
+                editable:this.options.editable===false ? false : true, //by default it's editable
                 i18n:i18n
             };
 
-            var html = Mustache.render(fullTemplate,
-                data,
-                {itemPartial:itemPartial}
-            );
+            //new way
+            var html = Mustache.render(this.template(), data);
             this.$el.html(html);
 
             if (this.options.editor) {
@@ -200,7 +137,6 @@ define([
             var row = 0;
             this.components = [];
             this.model.each(function (item) {
-                console.log("row : " + row);
                 var isSelected = widget.selection.include(item);
                 var component = editor.getComponent(widget, item, isSelected, row);
                 widget.components.push(component);
@@ -211,46 +147,12 @@ define([
             });
         },
 
-
-        fullTemplate:function () {
-            return this.listTemplate() + this.creationEditorTemplate() + this.controlBarTemplate();
-        },
-
-        listTemplate:function () {
-
-            var list =
-                "{{#items}}\n" +
-                    "<li id='item-{{cid}}' class='list-item editable-list-item'>\n" +
-                    "{{#editable}}<input class='item-selection' type='checkbox' value='{{cid}}' />{{/editable}}\n" + //delete Button
-                    "{{>itemPartial}}" + //custom display of the object
-                    "</li>\n" +
-                    "{{/items}}\n";
-
-
-            return list;
+        template : function(){
+            return template;
         },
 
 
-        creationEditorTemplate:function () {
-            return "<div id='editable-list-editor-{{listId}}' class='editable-list-editor'></div>"
-        },
-
-
-        getCreationEditorPlace:function () {
-            var elt = this.$el.find("#editable-list-editor-" + this.cid);
-            kumo.assertNotEmpty(elt, "can't find editor-place element");
-            return elt;
-        },
-
-        controlBarTemplate:function () {
-            var controls = "{{#editable}}<div id='editable-list-controls-{{listId}}' class='editable-list-controls'>" +
-                "<button id='editable-list-add-item-{{listId}}' class='btn editable-list-adder'>{{i18n.APPEND}}</button>" +
-                "<button id='editable-list-cancel-editor-{{listId}}' class='btn cancel editable-list-cancel-editor'>{{i18n.CANCEL}}</button>" +
-                "</div>{{/editable}}\n";
-            return controls;
-        },
-
-
+        //TODO : not correctly used : the this.model.add(item); should be done in this.addItem() wich would call list:modelChanged
         onItemAdded:function (item) {
 
             this.model.add(item);

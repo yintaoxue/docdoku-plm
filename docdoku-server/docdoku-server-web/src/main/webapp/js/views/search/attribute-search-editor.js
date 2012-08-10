@@ -24,7 +24,7 @@ define([
 
         customizeWidget:function (widget) {
             var self = this;
-            widget.on("list:addItem", function (listElement) {
+            widget.on("list:addItem", function () {
                 var newAttribute = new Attribute({
                     type:Attribute.types.TEXT,
                     name:"",

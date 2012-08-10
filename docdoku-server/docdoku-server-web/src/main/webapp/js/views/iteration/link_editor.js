@@ -16,7 +16,7 @@ define([
 
         customizeWidget:function (widget) {
             var self = this;
-            widget.on("list:addItem", function (listElement) {
+            widget.on("list:addItem", function () {
 
                 var searchComponent =new LinkSearchComponent();
                 widget.trigger("state:working");

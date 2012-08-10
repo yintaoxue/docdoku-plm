@@ -3,6 +3,11 @@ define([
     "models/attached_file",
     "collections/attached_file_collection"
 ], function (i18n, AttachedFile, AttachedFileCollection) {
+
+    /**
+     * Unlike LinkEditor, The FileEditor contains its own EditorComponent and extends Backbone.View
+     * There is also the getComponent()
+     */
     var FileEditor = Backbone.View.extend({
 
         className : 'FileEditor',
@@ -13,12 +18,13 @@ define([
             this.newItems = new AttachedFileCollection();
 
 
-            var widget = this.options.widget;
+        /*    var widget = this.options.widget;
             kumo.assertNotEmpty(widget, "the widget is not set for the FileEditor "+this.cid);
             this.setWidget(widget);
+            */
 
             //events
-            _.bindAll(this);
+            //_.bindAll(this);
 
 
         },
@@ -59,10 +65,7 @@ define([
             var widget =this.widget;
             widget.trigger("state:working");
 
-
-
             //find correct $el
-            //$("#item-"+newFile.cid).append("<span id='progress-"+newFile.cid+"'> loading ....</span>");
             var progressElement = $("#progressVisualization");
             kumo.assertNotEmpty(progressElement, "no progress element found");
             //xhr
@@ -97,7 +100,6 @@ define([
 
             //on progress
             function uploadProgress(evt) {
-                console.log("progressing")
                 if (evt.lengthComputable) {
                     var percentComplete = Math.round(evt.loaded * 100 / evt.total);
                     progressElement.html(
@@ -114,11 +116,8 @@ define([
             }
 
             function finished(){
-                console.log("file "+newFile+" finished");
                 progressElement.empty();
                 widget.trigger("status:idle");
-                //widget.off("state:cancel");
-
             }
 
         },
@@ -186,8 +185,55 @@ define([
 
 
 
+        },
+        getComponent:function (widget, item, isSelected, row) {
+
+            var fileView = new FileComponent({
+                widget:widget,
+                model:item,
+                isSelected:isSelected,
+                row:row
+            });
+            fileView.editor = this;
+
+            return fileView;
         }
 
     });
+
+    var FileComponent = Backbone.View.extend({
+
+        initialize : function(){
+            kumo.assertNotEmpty(this.model, "no file model set to the View");
+        },
+
+        render:function () {
+            var data = this.dataMapper();
+            var html = Mustache.render(this.template(), data);
+            this.$el.html(html);
+            return this;
+        },
+
+        /**
+         * Extract datas needed for the partial
+         */
+        dataMapper : function(){
+            return {
+                created : this.model.isCreated(),
+                url : this.model.isCreated() ? this.model.getUrl() : false,
+                shortName : this.model.getShortName(),
+                fullName : this.model.getFullName(),
+                cid : this.model.cid
+            }
+        },
+
+        template : function(){
+            var str ="{{#created}}<a href='{{url}}'>{{shortName}}</a>{{/created}}" +//created : link
+                "{{^created}}{{shortName}}{{/created}}"; //not created : only shortName
+            return str;
+        }
+
+    });
+
     return FileEditor;
 });
