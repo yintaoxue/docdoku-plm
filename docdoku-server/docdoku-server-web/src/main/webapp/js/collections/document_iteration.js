@@ -6,8 +6,9 @@ define([
 	var DocumentIterationList = Backbone.Collection.extend({
 		model: DocumentIteration,
 
-
-
+        comparator : function(iteration) {
+            return iteration.get("iteration");
+        },
 
 		url: function () {
 			return "/api/workspaces/"

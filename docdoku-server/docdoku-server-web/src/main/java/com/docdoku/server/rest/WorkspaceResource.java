@@ -1,15 +1,13 @@
 package com.docdoku.server.rest;
 
 import com.docdoku.core.common.User;
+import com.docdoku.core.document.DocumentIteration;
 import com.docdoku.core.document.DocumentMaster;
 import com.docdoku.core.document.SearchQuery;
 import com.docdoku.core.security.UserGroupMapping;
 import com.docdoku.core.services.ApplicationException;
 import com.docdoku.core.services.IDocumentManagerLocal;
-import com.docdoku.server.rest.dto.DocumentMasterTemplateDTO;
-import com.docdoku.server.rest.dto.TagDTO;
-import com.docdoku.server.rest.dto.UserDTO;
-import com.docdoku.server.rest.dto.WorkspaceDTO;
+import com.docdoku.server.rest.dto.*;
 import org.dozer.DozerBeanMapperSingletonWrapper;
 import org.dozer.Mapper;
 
@@ -19,6 +17,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -48,9 +48,14 @@ public class WorkspaceResource {
     @Produces("application/json;charset=UTF-8")
     @Path("{workspaceId}/find/documents/")
     //TODO use ?reference = for something matching the docId+title
-    public Set<String> findDocumentById(@PathParam("workspaceId") String workspaceId, @QueryParam("id")String documentId){
+    public DocumentIterationDTO[] findDocumentById(@PathParam("workspaceId") String workspaceId, @QueryParam("id")String documentId,
+                                        @QueryParam("term")String term){
 
-        Set<String> result = new TreeSet<String>();
+        //If there is a jqueryUI term argument,
+        if (term!= null && ! term.isEmpty() &&(documentId == null || documentId.isEmpty())){
+            documentId = term;
+        }
+        List<DocumentIterationDTO> result = new ArrayList<DocumentIterationDTO>();
         SearchQuery queryId = new SearchQuery();
         queryId.setWorkspaceId(workspaceId);
         queryId.setDocMId(documentId);
@@ -62,10 +67,12 @@ public class WorkspaceResource {
         try {
             DocumentMaster[] documents = workspaceService.searchDocumentMasters(queryId);
             for (DocumentMaster doc : documents){
-                result.add(doc.getId());
-                //doc.get
+                DocumentIteration iteration = doc.getLastIteration();
+                if (iteration != null){
+                    DocumentIterationDTO iterationDTO = mapper.map(iteration, DocumentIterationDTO.class);
+                    result.add(iterationDTO);
+                }
             }
-            
 
             /*documents = workspaceService.searchDocumentMasters(queryTitle);
             for (DocumentMaster doc : documents){
@@ -76,7 +83,7 @@ public class WorkspaceResource {
         }catch (Exception e){
             throw new WebApplicationException(e);
         }
-        return result;
+        return result.toArray(new DocumentIterationDTO[]{});
         
     }
     

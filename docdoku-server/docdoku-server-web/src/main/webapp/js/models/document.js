@@ -1,11 +1,15 @@
 define([
 	"i18n",
 	"common/date",
-	"collections/document_iteration"
+    "models/document_iteration",
+	"collections/document_iteration",
+    "collections/linked_document_collection"
 ], function (
 	i18n,
 	date,
-	DocumentIterationList
+    DocumentIteration,
+	DocumentIterationList,
+    LinkedDocumentCollection
 ) {
 	var Document = Backbone.Model.extend({
 		initialize: function () {
@@ -41,18 +45,32 @@ define([
 			_.bindAll(this);
 		},
 		parse: function(data) {
+            var self = this;
 
 			this.iterations = new DocumentIterationList(data.documentIterations);
 			this.iterations.document = this;
 
             //setting lastiteration
 			if (data.documentIterations.length) {
-				this.lastIteration = this.iterations.get(data.documentIterations[data.documentIterations.length - 1].iteration);
+
+				this.lastIteration = this.iterations.last() ;
 				data.lastIteration = this.lastIteration;
+
+                //setting links for last iteration
+                var linksData = this.lastIteration.get("linkedDocuments");
+                var links = new LinkedDocumentCollection ();
+                _.each(linksData, function(itemData){
+                    var iter = new DocumentIteration(itemData);
+                    links.add(iter);
+                    iter.set("document", self);
+               });
+                this.lastIteration.set("linkedDocuments", links);
 			}
 
-
 			data.documentIterations = this.iterations;
+
+
+
 			return data;
 		},
 
@@ -93,10 +111,7 @@ define([
 
 
 
-        /**
-         * @deprecated ; use this.getUrl()
-         * TODO : track and remove calls to this function
-         */
+
 		url: function() {
 
 			if (this.get("id")) {

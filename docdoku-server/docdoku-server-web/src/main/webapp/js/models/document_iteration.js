@@ -2,18 +2,22 @@ define([
 	"i18n",
 	"common/date",
     "collections/attribute_collection",
-    "collections/attached_file_collection"
+    "collections/attached_file_collection",
+    "collections/linked_document_collection"
 ], function (
 	i18n,
 	date,
     AttributeCollection,
-    AttachedFileCollection
+    AttachedFileCollection,
+    LinkedDocumentCollection
 ) {
 	var DocumentIteration = Backbone.Model.extend({
-		idAttribute: "iteration",
+		//idAttribute: "iteration",
 		initialize: function () {
             var self = this;
             this.className = "DocumentIteration";
+            this.id = this.getReference();
+            this.isLink = false;
 			//_.bindAll(this);
 
             var attributes = new AttributeCollection(this.get("instanceAttributes"));
@@ -41,17 +45,50 @@ define([
               //  attr.set("documentIteration", self);
             });
 
-            //For the moment, DocumentIteration is built BEFORE the document
-            //kumo.assertNotEmpty(this.getDocument(), "no valid document assigned");
-            //kumo.assertNotEmpty(this.getIteration(), "no iteration assigned");
 
-            kumo.assert(this.getIteration() == this.id, "id attribute should be the iteration");
             kumo.assertNotAny([ this.get("workspaceId"), this.get("documentMasterId"), this.get("documentMasterVersion")]);
 
 		},
+
+        /**
+         * implementation is : return _.clone(this.attributes);
+         * Deep copy of nested attributes
+         * See http://backbonejs.org/#FAQ-nested for more documentation
+         */
+        toJSON : function(){
+            var attr = _.clone(this.attributes);
+            delete attr.document;
+
+            for (var key in attr){
+                var value = attr[key];
+                if (value instanceof Backbone.Model){
+                    attr[key] = value.toJSON();
+                }
+                if (value instanceof Backbone.Collection){
+                    var array = [];
+                    value.each(function(item){
+                       array.push(item.toJSON());
+                    });
+                    attr[key] = array;
+                }
+            }
+
+            if (this.isLink){
+                delete attr.linkedDocuments;
+                delete attr.instanceAttributes;
+                delete attr.attachedFiles;
+            }
+            return attr;
+        },
+
+        parse : function(data){
+
+        },
+
         defaults :{
             attachedFiles :[],
-            instanceAttributes : []
+            instanceAttributes : [],
+            linkedDocuments : new LinkedDocumentCollection()
         },
 
         getAttachedFiles : function(){

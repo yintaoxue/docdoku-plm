@@ -14,6 +14,16 @@ define([
             //_.bindAll(this);
         },
 
+        /**
+         * implementation is : return _.clone(this.attributes);
+         * We must remove the documentIteration object to avoid stack overflow
+         */
+        toJSON : function(){
+            var attr = _.clone(this.attributes);
+            delete attr.documentIteration;
+            return attr;
+        },
+
         getDocumentIteration : function(){
            return this.get("documentIteration");
         },

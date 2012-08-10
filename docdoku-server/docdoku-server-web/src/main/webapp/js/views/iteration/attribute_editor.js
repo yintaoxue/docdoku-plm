@@ -121,7 +121,7 @@ define([
                 isUrl:type == Attribute.types.URL,
                 isSelected:isSelected
             }
-                return result;
+            return result;
         },
 
         typeChanged:function (evt) {

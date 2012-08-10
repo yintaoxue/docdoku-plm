@@ -2,9 +2,7 @@ define([
     "views/components/modal",
     "views/iteration/file_editor",
     "views/iteration/attribute_editor",
-  //  "views/attributes/attributes",
-   // "views/document_new/document_new_template_list",
-   // "views/document_new/document_new_workflow_list",
+    "views/iteration/link_editor",
     "views/components/editable_list_view",
     "text!templates/iteration/iteration_new.html",
     "text!templates/attributes/attribute_item.html",
@@ -13,9 +11,7 @@ define([
     ModalView,
     FileEditor,
     AttributeEditor,
-  //  AttributesView,
-    //DocumentNewTemplateListView,
-    //DocumentNewWorkflowListView,
+    LinkEditor,
     EditableListView,
     template,
     attributePartial,
@@ -47,9 +43,9 @@ define([
             var ok = true;
             var attributes = this.attributesView.model;
             attributes.each(function(item){
-               if (! item.isValid()){
-                   ok = false;
-               }
+                if (! item.isValid()){
+                    ok = false;
+                }
             });
             if (!ok){
                 this.getPrimaryButton().attr("disabled", "disabled");
@@ -68,8 +64,6 @@ define([
                 iteration : this.iteration.toJSON(),
                 master : this.model.toJSON(),
                 reference : this.iteration.getReference(),
-                //attributes : attrHtml,
-               // files : filesViewHtml,
                 _ : i18n
             }
             //Main window
@@ -78,7 +72,6 @@ define([
 
             //Attributes tab
             kumo.assertNotEmpty($("#iteration-attributes"), "no tab for attributes");
-
             var attributes = this.iteration.getAttributes();
             var attributeEditor = new AttributeEditor();
 
@@ -120,8 +113,22 @@ define([
                 documentIteration:this.iteration,
                 widget : this.filesView
             });
+            this.cutomizeRendering();//TODO this should be done is the file editor
 
-            this.cutomizeRendering();
+            //Linked Documents
+            kumo.assertNotEmpty($("#iteration-links"), "no tab for document links");
+            var links = this.iteration.get("linkedDocuments");
+            var linkEditor = new LinkEditor();
+
+            this.linksView = new EditableListView  ({
+                model : links,
+                editable : true,
+                listName :"Linked Documents for "+this.iteration,
+                editor : linkEditor
+            }).render();
+            $("#iteration-links").append(this.linksView.$el);
+            linkEditor.setWidget(this.linksView);
+            _.extend(linkEditor, Backbone.Events);
 
             return this;
         },
@@ -130,19 +137,23 @@ define([
 
             //saving new attributes
             var attributes = this.attributesView.getUnselectedItems();
-            kumo.debug("keeping those : ");
-            kumo.debug(attributes);
             this.iteration.set({
                 instanceAttributes:attributes
-            })
+            });
+
+            //saving links
+            var links = this.linksView.getUnselectedItems();
+            this.iteration.set({
+                linkedDocuments:links
+            });
+
+
 
             //There is a parsing problem at saving time
             var files = this.iteration.get("attachedFiles");
             this.iteration.set({
                 attachedFiles:null
             });
-            var clone =  this.iteration.clone();
-            kumo.debug("cloning ok");
             this.iteration.save();
             //tracking back files
             this.iteration.set({
@@ -190,8 +201,8 @@ define([
         cutomizeRendering : function(){
 
             this.filesView.on("list:selected", function(selectedObject, index, line){
-                    line.addClass("stroke");
-                    line.find("a").addClass("stroke");
+                line.addClass("stroke");
+                line.find("a").addClass("stroke");
             });
 
             this.filesView.on("list:unselected", function(selectedObject, index, line){
@@ -207,13 +218,13 @@ define([
          */
         fileDataMapper : function(file){
 
-                return {
-                    created : file.isCreated(),
-                    url : file.isCreated() ? file.getUrl() : false,
-                    shortName : file.getShortName(),
-                    fullName : file.getFullName(),
-                    cid : file.cid
-                }
+            return {
+                created : file.isCreated(),
+                url : file.isCreated() ? file.getUrl() : false,
+                shortName : file.getShortName(),
+                fullName : file.getFullName(),
+                cid : file.cid
+            }
         },
 
         getPrimaryButton : function(){

@@ -389,7 +389,6 @@ public class DocumentResource {
                 links = createDocumentIterationKey(linkedDocs);
             }
 
-
             List<InstanceAttributeDTO> instanceAttributes = data.getInstanceAttributes();
             InstanceAttribute[] attributes = null;
             if (instanceAttributes != null) {

@@ -12,6 +12,7 @@
         <title>v 0.4 - <fmt:message key="title"/></title>
 
         <link rel="Shortcut Icon" type="image/ico" href="<%=request.getContextPath()%>/images/favicon.ico"/>
+        <link rel="stylesheet" type="text/css"  href="<%=request.getContextPath()%>/css/redmond/jquery-ui-1.8.22.custom.css">
 		<link rel="stylesheet/less" href="<%=request.getContextPath()%>/less/style.less">
 
 		<script src="<%=request.getContextPath()%>/js/lib/less-1.2.1.min.js"></script>
@@ -24,9 +25,8 @@
 		<script src="<%=request.getContextPath()%>/js/lib/jquery-ui-1.8.19.min.js"></script>
 		<script src="<%=request.getContextPath()%>/js/lib/jquery.maskedinput-1.3.js"></script>
 		<!--script src="<%=request.getContextPath()%>/js/lib/backbone-0.9.2.min.js"></script-->
-        <script src="<%=request.getContextPath()%>/js/lib/backbone-0.9.2.min.js"></script>
+        <script src="<%=request.getContextPath()%>/js/lib/backbone_dev.js"></script>
 		<script src="<%=request.getContextPath()%>/js/lib/bootstrap-2.0.2.min.js"></script>
-
 		<script src="<%=request.getContextPath()%>/js/lib/require/1.0.8/require.min.js"></script>
 		<script type="text/javascript">
 			var APP_CONFIG = {
@@ -42,6 +42,8 @@
 				locale: "<%=request.getLocale()%>"
 			});
 			require(["app"]);
+
+
 		</script>
     </head>    
     <body>

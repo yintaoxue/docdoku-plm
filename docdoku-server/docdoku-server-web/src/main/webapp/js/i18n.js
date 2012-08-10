@@ -36,6 +36,7 @@ define(function () {
 		"ID_GENERATION":				"Génération de l'ID",
 		"ITERATION":					"Itération",
 		"LAST_ITERATION":				"Itération courante",
+        "LINKED_DOCUMENTS":             "Documents Liés",
 		"LINKS":						"Liens",
 		"MASK":							"Masque de saisie",
 		"MODIFICATION_DATE":			"Date de modification",
