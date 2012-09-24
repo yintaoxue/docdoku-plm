@@ -20,7 +20,14 @@ define([
             this.isLink = false;
 			//_.bindAll(this);
 
+
             var attributes = new AttributeCollection(this.get("instanceAttributes"));
+            attributes.each(function (attribute){
+               if (attribute.getType() == attribute.types.BOOLEAN){
+                   var newValueIsFalse = (attribute.getValue() == "false") ||  (attribute.getValue() === false);
+                   attribute.set({value: ! newValueIsFalse},{silent:true});
+               }
+            });
 
             var filesMapping = _.map(this.get("attachedFiles"), function(fullName){
                 return {
@@ -82,7 +89,7 @@ define([
         },
 
         parse : function(data){
-
+            return data;
         },
 
         defaults :{

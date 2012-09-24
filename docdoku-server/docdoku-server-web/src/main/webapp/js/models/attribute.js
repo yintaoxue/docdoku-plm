@@ -86,8 +86,10 @@ define([
 
     });
 
+    //TODO : not a great way to put constants.
     Attribute.types = {
         NUMBER:"NUMBER", DATE:"DATE", BOOLEAN:"BOOLEAN", TEXT:"TEXT", URL:"URL"};
+    Attribute.prototype.types = Attribute.types;
 
     return Attribute;
 });
